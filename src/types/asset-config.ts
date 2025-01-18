@@ -1,5 +1,11 @@
 import { ImageFrameConfig } from "../phaser-aliases";
-import { ImageTag, SfxTag, SpritesheetTag, TilemapTag } from "../tags";
+import {
+  BackgroundSound,
+  ImageTag,
+  SfxTag,
+  SpritesheetTag,
+  TilemapTag,
+} from "../tags";
 
 interface AssetConfig<Tag extends string> {
   tag: Tag;
@@ -15,3 +21,5 @@ export interface SpritesheetConfig extends AssetConfig<SpritesheetTag> {
 export interface TileMapConfig extends AssetConfig<TilemapTag> {}
 
 export interface SfxConfig extends AssetConfig<SfxTag> {}
+
+export interface BgsConfig extends AssetConfig<BackgroundSound> {}

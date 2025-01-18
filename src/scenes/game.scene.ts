@@ -1,7 +1,13 @@
 import { Scene } from "phaser";
 import { Hero } from "../game-objects/hero.game-object";
 import { Sprite } from "../phaser-aliases";
-import { ImageTag, SceneTag, SfxTag, TilemapTag } from "../tags";
+import {
+  BackgroundSound,
+  ImageTag,
+  SceneTag,
+  SfxTag,
+  TilemapTag,
+} from "../tags";
 
 export class Game extends Scene {
   protected get hero(): Hero {
@@ -28,6 +34,8 @@ export class Game extends Scene {
     if (!this.input.keyboard) {
       throw Error("Keyboard plugin is not available");
     }
+
+    this.sound.play(BackgroundSound.RIVER_FLOWING_INSECTS);
 
     this._keyboard = this.input.keyboard;
     this.createDebug();

@@ -1,4 +1,5 @@
 import { Game, Types } from "phaser";
+import { GameHelper } from "./helpers";
 import {
   Boot,
   GameOver,
@@ -23,7 +24,7 @@ const config: Types.Core.GameConfig = {
     default: "arcade",
     arcade: {
       gravity: { x: 0, y: 800 },
-      debug: true,
+      debug: GameHelper.isDev,
     },
   },
   input: {

@@ -27,6 +27,10 @@ export class Preloader extends Scene {
     AssetsConfig.sfx.forEach((config) =>
       this.load.audio(config.tag, config.url)
     );
+
+    AssetsConfig.bgs.forEach((config) =>
+      this.load.audio(config.tag, config.url)
+    );
   }
 
   public create(): void {

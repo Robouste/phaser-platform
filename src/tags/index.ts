@@ -1,4 +1,5 @@
 export * from './animation.tag';
+export * from './background-sound.tag';
 export * from './image.tag';
 export * from './scene.tag';
 export * from './sfx.tag';

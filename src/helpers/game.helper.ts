@@ -2,6 +2,10 @@ import { Sprite } from "../phaser-aliases";
 import { AnimationTag } from "../tags";
 
 export class GameHelper {
+  public static get isDev(): boolean {
+    return window.location.hostname === "localhost";
+  }
+
   public static animate(
     sprite: Sprite,
     animation: AnimationTag,

@@ -1,5 +1,12 @@
-import { ImageTag, SfxTag, SpritesheetTag, TilemapTag } from "../tags";
 import {
+  BackgroundSound,
+  ImageTag,
+  SfxTag,
+  SpritesheetTag,
+  TilemapTag,
+} from "../tags";
+import {
+  BgsConfig,
   ImageConfig,
   SfxConfig,
   SpritesheetConfig,
@@ -83,6 +90,15 @@ export class AssetsConfig {
       {
         tag: SfxTag.ARROW_WALL_IMPACT,
         url: "audio/sfx/arrow-wall-impact.ogg",
+      },
+    ];
+  }
+
+  public static get bgs(): BgsConfig[] {
+    return [
+      {
+        tag: BackgroundSound.RIVER_FLOWING_INSECTS,
+        url: "audio/bgs/river-flowing-insects.ogg",
       },
     ];
   }
