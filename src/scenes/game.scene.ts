@@ -35,7 +35,9 @@ export class Game extends Scene {
       throw Error("Keyboard plugin is not available");
     }
 
-    this.sound.play(BackgroundSound.RIVER_FLOWING_INSECTS);
+    this.sound.play(BackgroundSound.RIVER_FLOWING_INSECTS, {
+      loop: true,
+    });
 
     this._keyboard = this.input.keyboard;
     this.createDebug();
