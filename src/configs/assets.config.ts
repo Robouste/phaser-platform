@@ -1,5 +1,14 @@
 import AnimatedTiles from "phaser-animated-tiles/dist/AnimatedTiles.js";
-import { BackgroundSound, ImageTag, PluginTag, SfxTag, SpritesheetTag, TilemapTag, TilesetTag } from "../tags";
+import {
+  BackgroundSound,
+  EnnemyTag,
+  ImageTag,
+  PluginTag,
+  SfxTag,
+  SpritesheetTag,
+  TilemapTag,
+  TilesetTag,
+} from "../tags";
 import {
   BgsConfig,
   ImageConfig,
@@ -95,6 +104,14 @@ export class AssetsConfig {
         config: {
           frameWidth: 72,
           frameHeight: 70,
+        },
+      },
+      {
+        tag: EnnemyTag.PIXIE,
+        url: "spritesheets/ennemies/pixie-spritesheet.webp",
+        config: {
+          frameWidth: 32,
+          frameHeight: 32,
         },
       },
     ];

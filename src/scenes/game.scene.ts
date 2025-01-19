@@ -27,7 +27,7 @@ export class Game extends Scene {
     this._keyboard = this.input.keyboard;
     this.createDebug();
 
-    this._hero = new Hero(this, 0, 0);
+    this._hero = new Hero(this);
     new ForestLevel(this._hero, this);
   }
 

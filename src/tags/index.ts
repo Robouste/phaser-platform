@@ -1,5 +1,6 @@
 export * from './animation.tag';
 export * from './background-sound.tag';
+export * from './ennemy.tag';
 export * from './image.tag';
 export * from './plugin.tag';
 export * from './scene.tag';

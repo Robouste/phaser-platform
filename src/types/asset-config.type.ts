@@ -1,6 +1,7 @@
 import { ImageFrameConfig } from "../phaser-aliases";
 import {
   BackgroundSound,
+  EnnemyTag,
   ImageTag,
   PluginTag,
   SfxTag,
@@ -18,7 +19,7 @@ export interface ImageConfig extends AssetConfig<ImageTag> {}
 
 export interface TilesetConfig extends AssetConfig<TilesetTag> {}
 
-export interface SpritesheetConfig extends AssetConfig<SpritesheetTag> {
+export interface SpritesheetConfig extends AssetConfig<SpritesheetTag | EnnemyTag> {
   config: ImageFrameConfig;
 }
 

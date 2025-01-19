@@ -1,10 +1,10 @@
 import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
 import { GameHelper } from "../helpers/game.helper";
-import { ArcadeBody, ArcadeSprite } from "../phaser-aliases";
+import { ArcadeBody, ArcadeSprite, Sprite } from "../phaser-aliases";
 import { AnimationTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
 
-export class Hero extends Phaser.GameObjects.Sprite {
+export class Hero extends Sprite {
   public declare body: ArcadeBody;
   public projectiles: Phaser.Physics.Arcade.Group;
   private _isJumping = false;
@@ -29,8 +29,8 @@ export class Hero extends Phaser.GameObjects.Sprite {
     y: 14,
   };
 
-  constructor(scene: Scene, x: number, y: number) {
-    super(scene, x, y, SpritesheetTag.HERO);
+  constructor(scene: Scene) {
+    super(scene, 0, 0, SpritesheetTag.HERO);
 
     this.setScale(0.5).setDepth(depthsConfig.hero);
 

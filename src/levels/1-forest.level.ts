@@ -1,10 +1,11 @@
 import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
-import { Hero } from "../game-objects";
+import { Ennemy, Hero } from "../game-objects";
 import { GameHelper } from "../helpers";
 import { Sprite, Tilemap, Tileset } from "../phaser-aliases";
 import {
   BackgroundSound,
+  EnnemyTag,
   ImageTag,
   SfxTag,
   TilemapLayerTag,
@@ -52,6 +53,7 @@ export class ForestLevel {
     return this._scene.cameras.main;
   }
   private _colliderGroup: Phaser.Physics.Arcade.StaticGroup;
+  private _ennemies: Phaser.Physics.Arcade.Group;
   private _sceneWidth = 3200;
   private _map: Tilemap;
   private _layersConfig: Record<TilemapLayerTag, LayerConfig> = {
@@ -112,9 +114,11 @@ export class ForestLevel {
     this.generateMap();
 
     this._colliderGroup = this._physics.add.staticGroup();
+    this._ennemies = this._physics.add.group();
 
     this.addColliders();
     this.addHero();
+    this.addEnnemies();
     this.setCollisions();
   }
 
@@ -195,8 +199,26 @@ export class ForestLevel {
     this._mainCam.startFollow(this.hero);
   }
 
+  private addEnnemies(): void {
+    const ennemies = this._map
+      .createFromObjects(TilemapObjectsTag.POSITIONS, {
+        type: "ennemy",
+        classType: Sprite,
+      })
+      .filter((ennemy): ennemy is Sprite => ennemy instanceof Sprite);
+
+    ennemies.forEach((ennemy) => {
+      ennemy.alpha = 0;
+      const ennemyObject = new Ennemy(this._scene, ennemy.name as EnnemyTag);
+      ennemyObject.spawn(ennemy.x, ennemy.y);
+
+      this._ennemies.add(ennemyObject);
+    });
+  }
+
   private setCollisions(): void {
     this._physics.add.collider(this.hero, this._colliderGroup);
+    this._physics.add.collider(this._ennemies, this._colliderGroup);
 
     this._physics.add.collider(this.hero.projectiles, this._colliderGroup, (projectile) => {
       console.log("collided");
