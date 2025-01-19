@@ -12,6 +12,15 @@
     <div id="app">
       <div id="game-container"></div>
     </div>
-    <script type="module" src="./bundle.min.js"></script>
+    <script id="bundle-script" type="module" src="./bundle.min.js"></script>
+    <script>
+      const scriptElement = document.querySelector("#bundle-script");
+
+      if (scriptElement) {
+        const scrUrl = scriptElement.getAttribute("src");
+
+        scriptElement.setAttribute("src", `${scrUrl}?t=${new Date().getTime()}`);
+      }
+    </script>
   </body>
 </html>
