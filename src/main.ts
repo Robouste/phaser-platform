@@ -33,6 +33,4 @@ const config: Types.Core.GameConfig = {
   scene: [Boot, Preloader, MainMenu, MainGame, GameOver],
 };
 
-console.log("new version");
-
 export default new Game(config);
