@@ -32,6 +32,7 @@ jobs:
 
             # Pull changes
             git checkout ${{ vars.MAIN_BRANCH }}
+            git reset --hard HEAD
             git pull
 
             # Install dependencies and build the project
