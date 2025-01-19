@@ -1,12 +1,6 @@
 import { Game, Types } from "phaser";
 import { GameHelper } from "./helpers";
-import {
-  Boot,
-  GameOver,
-  Game as MainGame,
-  MainMenu,
-  Preloader,
-} from "./scenes";
+import { Boot, GameOver, Game as MainGame, MainMenu, Preloader } from "./scenes";
 
 //  Find out more information about the Game Config at:
 //  https://newdocs.phaser.io/docs/latest/Phaser.Types.Core.GameConfig

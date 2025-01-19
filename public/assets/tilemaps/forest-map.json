@@ -179,12 +179,12 @@
         {
          "draworder":"topdown",
          "id":4,
-         "name":"Colliders",
+         "name":"colliders",
          "objects":[
                 {
                  "height":171,
                  "id":2,
-                 "name":"decor-object",
+                 "name":"decor",
                  "rotation":0,
                  "type":"collider",
                  "visible":true,
@@ -267,7 +267,7 @@
         {
          "draworder":"topdown",
          "id":5,
-         "name":"Positions",
+         "name":"positions",
          "objects":[
                 {
                  "height":0,

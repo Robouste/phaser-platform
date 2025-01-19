@@ -6,6 +6,10 @@ export class GameHelper {
     return window.location.hostname === "localhost";
   }
 
+  public static get audioIsEnabled(): boolean {
+    return this.isDev ? false : true;
+  }
+
   public static animate(
     sprite: Sprite,
     animation: AnimationTag,

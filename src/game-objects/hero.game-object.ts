@@ -7,10 +7,10 @@ export class Hero extends Phaser.GameObjects.Sprite {
   public declare body: ArcadeBody;
   public projectiles: Phaser.Physics.Arcade.Group;
   private _isJumping = false;
-  public get movingLeft(): boolean {
+  public get isMovingLeft(): boolean {
     return this._cursors.left.isDown;
   }
-  public get movingRight(): boolean {
+  public get isMovingRight(): boolean {
     return this._cursors.right.isDown;
   }
 
@@ -31,15 +31,7 @@ export class Hero extends Phaser.GameObjects.Sprite {
   constructor(scene: Scene, x: number, y: number) {
     super(scene, x, y, SpritesheetTag.HERO);
 
-    this.scene.add.existing(this);
-    this.scene.physics.add.existing(this);
-
     this.setScale(0.5).setDepth(2);
-
-    const hitboxWidth = this.width * 0.7;
-    const hitboxHeight = this.height * 0.8;
-    this.body.setSize(hitboxWidth, hitboxHeight);
-    this.body.setOffset(this._offset.x, this._offset.y);
 
     if (!this.scene.input.keyboard) {
       throw Error("Keyboard plugin is not available");
@@ -47,14 +39,25 @@ export class Hero extends Phaser.GameObjects.Sprite {
 
     this._keyboard = this.scene.input.keyboard;
     this._cursors = this._keyboard.createCursorKeys();
-    this._shootKey = this._keyboard.addKey(
-      Phaser.Input.Keyboard.KeyCodes.SPACE
-    );
+    this._shootKey = this._keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.projectiles = this.scene.physics.add.group({
       allowGravity: false,
     });
 
     this.createAnimations();
+  }
+
+  public spawn(x: number, y: number): void {
+    this.scene.add.existing(this);
+    this.scene.physics.add.existing(this);
+
+    this.x = x;
+    this.y = y;
+
+    const hitboxWidth = this.width * 0.7;
+    const hitboxHeight = this.height * 0.8;
+    this.body.setSize(hitboxWidth, hitboxHeight);
+    this.body.setOffset(this._offset.x, this._offset.y);
   }
 
   public update(time: number, _: number): void {
@@ -66,7 +69,7 @@ export class Hero extends Phaser.GameObjects.Sprite {
     const isGrounded = this.body.touching.down;
 
     if (isGrounded) {
-      if (this.movingLeft || this.movingRight) {
+      if (this.isMovingLeft || this.isMovingRight) {
         GameHelper.animate(this, AnimationTag.WALK, {
           exceptIf: [AnimationTag.JUMP, AnimationTag.SHOOT],
         });
@@ -85,18 +88,17 @@ export class Hero extends Phaser.GameObjects.Sprite {
       if (this._isJumping && stupidHack) {
         this._isJumping = false;
         this.scene.sound.play(SfxTag.LAND);
-        console.log("is landing", this.body.touching);
         this._noOfJump = this._maxNoOfJump;
       }
     }
 
-    if (this.movingRight) {
+    if (this.isMovingRight) {
       this.body.setVelocityX(this._speed);
       this.setFlipX(false);
       this.body.setOffset(this._offset.x, this._offset.y);
     }
 
-    if (this.movingLeft) {
+    if (this.isMovingLeft) {
       this.body.setVelocityX(-this._speed);
       this.setFlipX(true);
       this.body.setOffset(this._offset.x + 6, this._offset.y);
@@ -120,12 +122,7 @@ export class Hero extends Phaser.GameObjects.Sprite {
 
       const sceneWidth = this.scene.cameras.main.getBounds().width;
 
-      if (
-        projectile.x > sceneWidth ||
-        projectile.x < 0 ||
-        projectile.y > sceneWidth ||
-        projectile.y < 0
-      ) {
+      if (projectile.x > sceneWidth || projectile.x < 0 || projectile.y > sceneWidth || projectile.y < 0) {
         projectile.destroy();
       }
 
@@ -194,11 +191,7 @@ export class Hero extends Phaser.GameObjects.Sprite {
     });
     const velocity = this.flipX ? -600 : 600;
 
-    const projectile: ArcadeSprite = this.projectiles.create(
-      this.x,
-      this.y,
-      ImageTag.PROJECTILE_ARROW
-    );
+    const projectile: ArcadeSprite = this.projectiles.create(this.x, this.y, ImageTag.PROJECTILE_ARROW);
     projectile.setFlipX(this.flipX);
     projectile.setVelocityX(velocity);
   }
