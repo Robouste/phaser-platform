@@ -3,6 +3,8 @@ import clean from "esbuild-plugin-clean";
 import copy from "esbuild-plugin-copy";
 import inlineImage from "esbuild-plugin-inline-image";
 
+const pluginDirectory = "./public/assets/plugins";
+
 const builder = async () => {
   await build({
     entryPoints: ["./src/main.ts"],

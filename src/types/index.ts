@@ -1,1 +1,1 @@
-export * from './asset-config';
+export * from "./asset-config.type";

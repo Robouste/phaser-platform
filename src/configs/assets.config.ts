@@ -1,6 +1,8 @@
+import AnimatedTiles from "phaser-animated-tiles/dist/AnimatedTiles.js";
 import {
   BackgroundSound,
   ImageTag,
+  PluginTag,
   SfxTag,
   SpritesheetTag,
   TilemapTag,
@@ -9,11 +11,14 @@ import {
 import {
   BgsConfig,
   ImageConfig,
+  PluginConfig,
   SfxConfig,
   SpritesheetConfig,
   TileMapConfig,
   TilesetConfig,
 } from "../types";
+
+type FuckYou = any;
 
 export class AssetsConfig {
   public static get images(): ImageConfig[] {
@@ -53,7 +58,15 @@ export class AssetsConfig {
       },
       {
         tag: TilesetTag.FOREST_WATER_ANIMATION,
-        url: "tilemaps/tilesets/animations/water.png",
+        url: "tilemaps/tilesets/animations/extruded/water.png",
+      },
+      {
+        tag: TilesetTag.FOREST_TREE_BRIGHT_3_ANIMATION,
+        url: "tilemaps/tilesets/animations/extruded/tree_bright3.png",
+      },
+      {
+        tag: TilesetTag.FOREST_TREE_BRIGHT_4_ANIMATION,
+        url: "tilemaps/tilesets/animations/extruded/tree_bright4.png",
       },
     ];
   }
@@ -106,6 +119,17 @@ export class AssetsConfig {
       {
         tag: BackgroundSound.RIVER_FLOWING_INSECTS,
         url: "audio/bgs/river-flowing-insects.ogg",
+      },
+    ];
+  }
+
+  public static get plugins(): PluginConfig[] {
+    return [
+      {
+        tag: PluginTag.ANIMATED_TILES,
+        url: AnimatedTiles as FuckYou,
+        systemKey: "animatedTiles",
+        sceneKey: "animatedTiles",
       },
     ];
   }

@@ -2,6 +2,7 @@ import { ImageFrameConfig } from "../phaser-aliases";
 import {
   BackgroundSound,
   ImageTag,
+  PluginTag,
   SfxTag,
   SpritesheetTag,
   TilemapTag,
@@ -26,3 +27,8 @@ export interface TileMapConfig extends AssetConfig<TilemapTag> {}
 export interface SfxConfig extends AssetConfig<SfxTag> {}
 
 export interface BgsConfig extends AssetConfig<BackgroundSound> {}
+
+export interface PluginConfig extends AssetConfig<PluginTag> {
+  systemKey: string;
+  sceneKey: string;
+}

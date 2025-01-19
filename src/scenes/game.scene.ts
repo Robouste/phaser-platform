@@ -1,4 +1,5 @@
 import { Scene } from "phaser";
+import { AssetsConfig } from "../configs";
 import { Hero } from "../game-objects";
 import { Sprite } from "../phaser-aliases";
 import {
@@ -31,10 +32,23 @@ export class Game extends Scene {
     super(SceneTag.GAME);
   }
 
+  public preload(): void {
+    AssetsConfig.plugins.forEach((config) =>
+      this.load.scenePlugin(
+        config.tag,
+        config.url,
+        config.systemKey,
+        config.sceneKey
+      )
+    );
+  }
+
   public create(): void {
     if (!this.input.keyboard) {
       throw Error("Keyboard plugin is not available");
     }
+
+    console.log("sys", this.sys);
 
     this.sound.play(BackgroundSound.RIVER_FLOWING_INSECTS, {
       loop: true,
@@ -92,9 +106,9 @@ export class Game extends Scene {
   }
 
   private generateMap(): void {
-    const map = this.make.tilemap({ key: TilemapTag.FOREST });
+    const tilemap = this.make.tilemap({ key: TilemapTag.FOREST });
 
-    const baseTileset = map.addTilesetImage(
+    const baseTileset = tilemap.addTilesetImage(
       "base-tiles",
       TilesetTag.FOREST_BASE,
       32,
@@ -102,7 +116,7 @@ export class Game extends Scene {
       1,
       2
     );
-    const decorativeTileset = map.addTilesetImage(
+    const decorativeTileset = tilemap.addTilesetImage(
       "decorative-tiles",
       TilesetTag.FOREST_DECORATIVE,
       32,
@@ -110,9 +124,35 @@ export class Game extends Scene {
       1,
       2
     );
+    const waterAnimationTileset = tilemap.addTilesetImage(
+      "water-animation",
+      TilesetTag.FOREST_WATER_ANIMATION,
+      32,
+      32,
+      1,
+      2
+    );
+
+    const treeBright3AnimationTileset = tilemap.addTilesetImage(
+      "tree_bright3",
+      TilesetTag.FOREST_TREE_BRIGHT_3_ANIMATION,
+      32,
+      32,
+      1,
+      2
+    );
+
+    const treeBright4AnimationTileset = tilemap.addTilesetImage(
+      "tree_bright4",
+      TilesetTag.FOREST_TREE_BRIGHT_4_ANIMATION,
+      32,
+      32,
+      1,
+      2
+    );
 
     this._colliderGroup = this.physics.add.staticGroup();
-    const colliders = map.createFromObjects("Colliders", {
+    const colliders = tilemap.createFromObjects("Colliders", {
       type: "collider",
       classType: Sprite,
     });
@@ -125,7 +165,7 @@ export class Game extends Scene {
         collider.alpha = 0;
       });
 
-    const positions = map.createFromObjects("Positions", {
+    const positions = tilemap.createFromObjects("Positions", {
       name: "hero",
     });
 
@@ -156,13 +196,26 @@ export class Game extends Scene {
       }
     );
 
-    if (!baseTileset || !decorativeTileset) {
+    if (
+      !baseTileset ||
+      !decorativeTileset ||
+      !waterAnimationTileset ||
+      !treeBright3AnimationTileset ||
+      !treeBright4AnimationTileset
+    ) {
       throw Error("Tileset not found");
     }
 
-    map.createLayer("background", baseTileset);
-    map.createLayer("foreground", baseTileset);
-    map.createLayer("decorations", [baseTileset, decorativeTileset]);
+    tilemap.createLayer("background", baseTileset);
+    tilemap.createLayer("foreground", [baseTileset, waterAnimationTileset]);
+    tilemap.createLayer("decorations", [
+      baseTileset,
+      decorativeTileset,
+      treeBright3AnimationTileset,
+      treeBright4AnimationTileset,
+    ]);
+
+    this.sys.animatedTiles.init(tilemap);
   }
 
   private createPlayer(x: number, y: number): void {
