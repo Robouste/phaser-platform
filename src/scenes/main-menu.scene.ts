@@ -2,9 +2,9 @@ import { GameObjects, Scene } from "phaser";
 import { SceneTag } from "../tags";
 
 export class MainMenu extends Scene {
-  background: GameObjects.Image;
-  logo: GameObjects.Image;
-  title: GameObjects.Text;
+  background!: GameObjects.Image;
+  logo!: GameObjects.Image;
+  title!: GameObjects.Text;
 
   constructor() {
     super(SceneTag.MAIN_MENU);

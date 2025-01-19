@@ -1,1 +1,1 @@
-
+export * from './assets.config';

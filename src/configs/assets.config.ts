@@ -4,6 +4,7 @@ import {
   SfxTag,
   SpritesheetTag,
   TilemapTag,
+  TilesetTag,
 } from "../tags";
 import {
   BgsConfig,
@@ -11,23 +12,12 @@ import {
   SfxConfig,
   SpritesheetConfig,
   TileMapConfig,
+  TilesetConfig,
 } from "../types";
 
 export class AssetsConfig {
   public static get images(): ImageConfig[] {
     return [
-      {
-        tag: ImageTag.FOREST_TILES,
-        url: "tilemaps/main-tiles.png",
-      },
-      {
-        tag: ImageTag.FOREST_DECORATIVE_TILES,
-        url: "tilemaps/decorative-tiles.png",
-      },
-      {
-        tag: ImageTag.FOREST_WATER_ANIMATION_TILES,
-        url: "tilemaps/animations/water.png",
-      },
       {
         tag: ImageTag.FOREST_BACKGROUND_DAY_1,
         url: "sprites/backgrounds/forest-background-day-1.webp",
@@ -47,6 +37,23 @@ export class AssetsConfig {
       {
         tag: ImageTag.PROJECTILE_ARROW,
         url: "sprites/projectiles/arrow.webp",
+      },
+    ];
+  }
+
+  public static get tilesets(): TilesetConfig[] {
+    return [
+      {
+        tag: TilesetTag.FOREST_BASE,
+        url: "tilemaps/tilesets/extruded/main-tiles.png",
+      },
+      {
+        tag: TilesetTag.FOREST_DECORATIVE,
+        url: "tilemaps/tilesets/decorative-tiles.png",
+      },
+      {
+        tag: TilesetTag.FOREST_WATER_ANIMATION,
+        url: "tilemaps/tilesets/animations/water.png",
       },
     ];
   }

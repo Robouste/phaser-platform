@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import { AssetsConfig } from "../configs/assets.config";
+import { AssetsConfig } from "../configs";
 import { SceneTag } from "../tags";
 
 export class Preloader extends Scene {
@@ -13,6 +13,10 @@ export class Preloader extends Scene {
     this.load.setPath("assets");
 
     AssetsConfig.images.forEach((config) =>
+      this.load.image(config.tag, config.url)
+    );
+
+    AssetsConfig.tilesets.forEach((config) =>
       this.load.image(config.tag, config.url)
     );
 

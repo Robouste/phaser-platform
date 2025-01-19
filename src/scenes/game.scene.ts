@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import { Hero } from "../game-objects/hero.game-object";
+import { Hero } from "../game-objects";
 import { Sprite } from "../phaser-aliases";
 import {
   BackgroundSound,
@@ -7,6 +7,7 @@ import {
   SceneTag,
   SfxTag,
   TilemapTag,
+  TilesetTag,
 } from "../tags";
 
 export class Game extends Scene {
@@ -95,11 +96,15 @@ export class Game extends Scene {
 
     const baseTileset = map.addTilesetImage(
       "base-tiles",
-      ImageTag.FOREST_TILES
+      TilesetTag.FOREST_BASE,
+      32,
+      32,
+      1,
+      2
     );
     const decorativeTileset = map.addTilesetImage(
       "decorative-tiles",
-      ImageTag.FOREST_DECORATIVE_TILES
+      TilesetTag.FOREST_DECORATIVE
     );
 
     this._colliderGroup = this.physics.add.staticGroup();

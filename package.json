@@ -19,7 +19,8 @@
   "homepage": "https://github.com/phaserjs/template-esbuild-ts#readme",
   "license": "MIT",
   "dependencies": {
-    "phaser": "^3.87.0"
+    "phaser": "^3.87.0",
+    "tile-extruder": "^2.1.0"
   },
   "devDependencies": {
     "@jgoz/esbuild-plugin-livereload": "^2.0.5",

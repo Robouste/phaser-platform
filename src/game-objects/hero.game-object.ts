@@ -22,6 +22,11 @@ export class Hero extends Phaser.GameObjects.Sprite {
   private _cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private _keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   private _shootKey: Phaser.Input.Keyboard.Key;
+  // That's SHIT. I need to understand better how it works and make it more dynamic
+  private _offset = {
+    x: 8,
+    y: 14,
+  };
 
   constructor(scene: Scene, x: number, y: number) {
     super(scene, x, y, SpritesheetTag.HERO);
@@ -30,6 +35,11 @@ export class Hero extends Phaser.GameObjects.Sprite {
     this.scene.physics.add.existing(this);
 
     this.setScale(0.5).setDepth(2);
+
+    const hitboxWidth = this.width * 0.7;
+    const hitboxHeight = this.height * 0.8;
+    this.body.setSize(hitboxWidth, hitboxHeight);
+    this.body.setOffset(this._offset.x, this._offset.y);
 
     if (!this.scene.input.keyboard) {
       throw Error("Keyboard plugin is not available");
@@ -83,11 +93,13 @@ export class Hero extends Phaser.GameObjects.Sprite {
     if (this.movingRight) {
       this.body.setVelocityX(this._speed);
       this.setFlipX(false);
+      this.body.setOffset(this._offset.x, this._offset.y);
     }
 
     if (this.movingLeft) {
       this.body.setVelocityX(-this._speed);
       this.setFlipX(true);
+      this.body.setOffset(this._offset.x + 6, this._offset.y);
     }
 
     if (Phaser.Input.Keyboard.JustDown(this._cursors.up)) {
@@ -176,6 +188,7 @@ export class Hero extends Phaser.GameObjects.Sprite {
 
   private shoot(): void {
     this.scene.sound.play(SfxTag.ARROW_SHOOT);
+
     GameHelper.animate(this, AnimationTag.SHOOT, {
       ignoreIfPlaying: false,
     });

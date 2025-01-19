@@ -2,9 +2,9 @@ import { Scene } from "phaser";
 import { SceneTag } from "../tags";
 
 export class GameOver extends Scene {
-  camera: Phaser.Cameras.Scene2D.Camera;
-  background: Phaser.GameObjects.Image;
-  gameover_text: Phaser.GameObjects.Text;
+  camera!: Phaser.Cameras.Scene2D.Camera;
+  background!: Phaser.GameObjects.Image;
+  gameover_text!: Phaser.GameObjects.Text;
 
   constructor() {
     super(SceneTag.GAME_OVER);
