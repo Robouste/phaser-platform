@@ -6,7 +6,8 @@
   "scripts": {
     "start": "npm run dev",
     "dev": "node esbuild/dev.server.mjs -w",
-    "build": "node esbuild/build.prod.mjs"
+    "build": "node esbuild/build.prod.mjs",
+    "extrude-tilesets": "tsx tools/tile-extruder.ts"
   },
   "author": "Phaser Studio <support@phaser.io> (https://phaser.io/)",
   "repository": {
@@ -19,16 +20,18 @@
   "homepage": "https://github.com/phaserjs/template-esbuild-ts#readme",
   "license": "MIT",
   "dependencies": {
-    "phaser": "^3.87.0",
-    "tile-extruder": "^2.1.0"
+    "phaser": "^3.87.0"
   },
   "devDependencies": {
     "@jgoz/esbuild-plugin-livereload": "^2.0.5",
+    "@types/node": "^22.10.7",
     "esbuild": "^0.21.2",
     "esbuild-plugin-clean": "^1.0.1",
     "esbuild-plugin-copy": "^2.1.1",
     "esbuild-plugin-inline-image": "^0.0.9",
     "esbuild-serve": "^1.0.1",
+    "tile-extruder": "^2.1.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.4.5"
   }
 }

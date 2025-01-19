@@ -104,7 +104,11 @@ export class Game extends Scene {
     );
     const decorativeTileset = map.addTilesetImage(
       "decorative-tiles",
-      TilesetTag.FOREST_DECORATIVE
+      TilesetTag.FOREST_DECORATIVE,
+      32,
+      32,
+      1,
+      2
     );
 
     this._colliderGroup = this.physics.add.staticGroup();

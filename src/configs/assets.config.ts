@@ -49,7 +49,7 @@ export class AssetsConfig {
       },
       {
         tag: TilesetTag.FOREST_DECORATIVE,
-        url: "tilemaps/tilesets/decorative-tiles.png",
+        url: "tilemaps/tilesets/extruded/decorative-tiles.png",
       },
       {
         tag: TilesetTag.FOREST_WATER_ANIMATION,
