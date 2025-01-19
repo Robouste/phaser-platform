@@ -1,4 +1,5 @@
 import { Scene } from "phaser";
+import { depthsConfig } from "../configs";
 import { GameHelper } from "../helpers/game.helper";
 import { ArcadeBody, ArcadeSprite } from "../phaser-aliases";
 import { AnimationTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
@@ -31,7 +32,7 @@ export class Hero extends Phaser.GameObjects.Sprite {
   constructor(scene: Scene, x: number, y: number) {
     super(scene, x, y, SpritesheetTag.HERO);
 
-    this.setScale(0.5).setDepth(2);
+    this.setScale(0.5).setDepth(depthsConfig.hero);
 
     if (!this.scene.input.keyboard) {
       throw Error("Keyboard plugin is not available");

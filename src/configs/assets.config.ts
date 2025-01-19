@@ -1,13 +1,5 @@
 import AnimatedTiles from "phaser-animated-tiles/dist/AnimatedTiles.js";
-import {
-  BackgroundSound,
-  ImageTag,
-  PluginTag,
-  SfxTag,
-  SpritesheetTag,
-  TilemapTag,
-  TilesetTag,
-} from "../tags";
+import { BackgroundSound, ImageTag, PluginTag, SfxTag, SpritesheetTag, TilemapTag, TilesetTag } from "../tags";
 import {
   BgsConfig,
   ImageConfig,
@@ -67,6 +59,30 @@ export class AssetsConfig {
       {
         tag: TilesetTag.FOREST_TREE_BRIGHT_4_ANIMATION,
         url: "tilemaps/tilesets/animations/extruded/tree_bright4.png",
+      },
+      {
+        tag: TilesetTag.FOREST_GRASS_1_ANIMATION,
+        url: "tilemaps/tilesets/animations/extruded/grass1.png",
+      },
+      {
+        tag: TilesetTag.FOREST_GRASS_2_ANIMATION,
+        url: "tilemaps/tilesets/animations/extruded/grass2.png",
+      },
+      {
+        tag: TilesetTag.FOREST_GRASS_3_ANIMATION,
+        url: "tilemaps/tilesets/animations/extruded/grass3.png",
+      },
+      {
+        tag: TilesetTag.FOREST_PLANT_1_ANIMATION,
+        url: "tilemaps/tilesets/animations/extruded/plant1.png",
+      },
+      {
+        tag: TilesetTag.FOREST_PLANT_2_ANIMATION,
+        url: "tilemaps/tilesets/animations/extruded/plant2.png",
+      },
+      {
+        tag: TilesetTag.FOREST_PLANT_3_ANIMATION,
+        url: "tilemaps/tilesets/animations/extruded/plant3.png",
       },
     ];
   }

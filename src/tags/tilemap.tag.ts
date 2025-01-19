@@ -4,8 +4,9 @@ export enum TilemapTag {
 
 export enum TilemapLayerTag {
   BACKGROUND = "background",
-  FOREGROUND = "foreground",
+  MAP = "map",
   DECORATIONS = "decorations",
+  FOREGROUND = "foreground",
 }
 
 export enum TilemapObjectsTag {
