@@ -22,6 +22,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e # Exit on error
             cd ${{ secrets.WORK_DIR }}
             
             # Set up Git to use the Personal Access Token
