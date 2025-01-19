@@ -23,8 +23,18 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.WORK_DIR }}
+            
+            # Set up Git to use the Personal Access Token
+            git config --global user.name "GitHub Actions Bot"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git remote set-url origin https://x-access-token:${{ secrets.ACCESS_TOKEN_TO_GIT }}@github.com/${{ github.repository }}.git
+
+            # Pull changes
             git checkout ${{ vars.MAIN_BRANCH }}
             git pull
+
+            # Install dependencies and build the project
             npm install
             npm run build
+            
             exit
