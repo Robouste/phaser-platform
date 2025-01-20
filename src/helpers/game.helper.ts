@@ -39,4 +39,8 @@ export class GameHelper {
 
     sprite.anims.play(animation, ignoreIfPlaying);
   }
+
+  public static isCloseEnough(value1: number, value2: number, epsilon: number = 1): boolean {
+    return Math.abs(value1 - value2) <= epsilon;
+  }
 }

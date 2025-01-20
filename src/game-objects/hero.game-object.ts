@@ -7,12 +7,14 @@ import { AnimationTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
 export class Hero extends Sprite {
   public declare body: ArcadeBody;
   public projectiles: Phaser.Physics.Arcade.Group;
-  private _isJumping = false;
   public get isMovingLeft(): boolean {
     return this._cursors.left.isDown;
   }
   public get isMovingRight(): boolean {
     return this._cursors.right.isDown;
+  }
+  public get speed(): number {
+    return this._speed;
   }
 
   private _speed = 160;
@@ -23,6 +25,7 @@ export class Hero extends Sprite {
   private _cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private _keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   private _shootKey: Phaser.Input.Keyboard.Key;
+  private _isJumping = false;
   // That's SHIT. I need to understand better how it works and make it more dynamic
   private _offset = {
     x: 8,

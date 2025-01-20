@@ -1,66 +1,120 @@
 import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
+import { GameHelper } from "../helpers";
 import { ArcadeBody, Sprite } from "../phaser-aliases";
 import { AnimationTag, EnnemyTag } from "../tags";
+import { Hero } from "./hero.game-object";
+
+export interface EnnemyConfig {
+  scene: Scene;
+  x: number;
+  y: number;
+  patrolDistance: number;
+  chaseDistance: number;
+  speed: number;
+  sprite: EnnemyTag;
+}
 
 export class Ennemy extends Sprite {
   public declare body: ArcadeBody;
 
+  private _patrolDistance: number;
+  private _chaseDistance: number;
+  private _player: Hero;
+  private _startingX: number;
+  private _spriteTag: EnnemyTag;
+  private _patrolDirection = 1;
   private _speed = 60;
-  private _startingPoint = { x: 0, y: 0 };
-  private _endingPoint = { x: 0, y: 0 };
-  private _isMovingToEnd = true;
+  private _patrolTween: Phaser.Tweens.Tween | null = null;
 
-  constructor(private _scene: Scene, private _spriteTag: EnnemyTag) {
-    super(_scene, 0, 0, _spriteTag);
+  private get _isPatrolling(): boolean {
+    return this._patrolTween !== null;
+  }
+
+  constructor(config: EnnemyConfig, player: Hero) {
+    super(config.scene, config.x, config.y, config.sprite);
+    this._startingX = config.x;
+    this._patrolDistance = config.patrolDistance;
+    this._chaseDistance = config.chaseDistance;
+    this._speed = config.speed;
+    this._spriteTag = config.sprite;
+
+    this._player = player;
+
+    this.scene.add.existing(this);
+    this.scene.physics.add.existing(this);
+
+    this.flipX = true;
 
     this.setDepth(depthsConfig.ennemies);
 
     this.createAnimations();
-  }
-
-  public spawn(x: number, y: number): void {
-    this.scene.add.existing(this);
-    this.scene.physics.add.existing(this);
-
-    this.play(AnimationTag.ENNEMY_IDLE);
-
-    this.flipX = true;
-    this.x = x;
-    this.y = y;
-
-    this._startingPoint = { x, y };
-  }
-
-  public patrol(endingPoint: { x: number; y: number }): void {
-    this._endingPoint = endingPoint;
+    this.startPatrol();
     this.play(AnimationTag.ENNEMY_MOVING);
+  }
 
-    this._scene.events.on("update", () => {
-      if (this._isMovingToEnd) {
-        this.goToTarget(this._endingPoint.x, this._endingPoint.y);
+  public update(): void {
+    this.updateFlipX();
 
-        const distance = Phaser.Math.Distance.Between(this.x, this.y, this._endingPoint.x, this._endingPoint.y);
+    const distanceToPlayer = Phaser.Math.Distance.Between(this.x, this.y, this._player.x, this._player.y);
 
-        if (distance < 10) {
-          this._isMovingToEnd = false;
-        }
-      } else {
-        this.goToTarget(this._startingPoint.x, this._startingPoint.y);
+    if (distanceToPlayer <= this._chaseDistance) {
+      this.stopPatrol();
+      this.chasePlayer();
+    } //
+    else if (distanceToPlayer > this._chaseDistance && this._patrolTween === null) {
+      this.returnToStart();
+    }
+  }
 
-        const distance = Phaser.Math.Distance.Between(this.x, this.y, this._startingPoint.x, this._startingPoint.y);
+  private startPatrol(): void {
+    if (this._patrolTween !== null) {
+      return;
+    }
 
-        if (distance < 10) {
-          this._isMovingToEnd = true;
-        }
-      }
+    this._patrolDirection = Math.sign(this._patrolDistance);
 
-      this.flipX = this.body.velocity.x < 0;
+    this._patrolTween = this.scene.tweens.add({
+      targets: this,
+      x: this._startingX + this._patrolDistance,
+      duration: Math.abs(this._patrolDistance) * 10,
+      yoyo: true,
+      repeat: -1,
+      onYoyo: () => (this._patrolDirection *= -1),
+      onRepeat: () => (this._patrolDirection *= -1),
     });
   }
 
-  public goToTarget(targetX: number, targetY: number): void {
-    this.scene.physics.moveTo(this, targetX, targetY, this._speed);
+  private stopPatrol(): void {
+    if (this._patrolTween !== null) {
+      this._patrolTween.stop();
+      this._patrolTween = null;
+    }
+  }
+
+  private chasePlayer(): void {
+    const direction = Math.sign(this._player.x - this.x);
+    this.body.setVelocityX(direction * this._speed);
+  }
+
+  private returnToStart(): void {
+    if (!GameHelper.isCloseEnough(this.x, this._startingX)) {
+      const direction = Math.sign(this._startingX - this.x);
+      this.body.setVelocityX(direction * this._speed);
+    } else {
+      console.log("reached start");
+      this.body.setVelocityX(0);
+      this.startPatrol();
+    }
+  }
+
+  private updateFlipX(): void {
+    // Patrol is using a tween, which updates X position instead of velocity
+    if (this._isPatrolling) {
+      this.setFlipX(this._patrolDirection < 0);
+    } else {
+      this.setFlipX(this.body.velocity.x < 0);
+    }
   }
 
   private createAnimations(): void {

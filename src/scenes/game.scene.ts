@@ -8,6 +8,7 @@ export class Game extends Scene {
   private _hero: Hero | undefined;
   private _keyboard: Phaser.Input.Keyboard.KeyboardPlugin | undefined;
   private _toggleDebugKey: Phaser.Input.Keyboard.Key | undefined;
+  private _currentLevel: ForestLevel | undefined;
 
   constructor() {
     super(SceneTag.GAME);
@@ -28,7 +29,7 @@ export class Game extends Scene {
     this.createDebug();
 
     this._hero = new Hero(this);
-    new ForestLevel(this._hero, this);
+    this._currentLevel = new ForestLevel(this._hero, this);
   }
 
   /**
@@ -47,6 +48,7 @@ export class Game extends Scene {
     }
 
     this._hero?.update(time, delta);
+    this._currentLevel?.update();
   }
 
   private createDebug(): void {

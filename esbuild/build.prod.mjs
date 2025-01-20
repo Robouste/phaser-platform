@@ -3,15 +3,12 @@ import clean from "esbuild-plugin-clean";
 import copy from "esbuild-plugin-copy";
 import inlineImage from "esbuild-plugin-inline-image";
 
-const pluginDirectory = "./public/assets/plugins";
-
 const builder = async () => {
   await build({
     entryPoints: ["./src/main.ts"],
     bundle: true,
     minify: true,
     sourcemap: false,
-    // target: ["chrome58", "firefox57", "safari11", "edge16"],
     outfile: "./dist/bundle.min.js",
     plugins: [
       clean({

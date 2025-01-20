@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
-import { Ennemy, Hero } from "../game-objects";
+import { Ennemy, EnnemyConfig, Hero } from "../game-objects";
 import { GameHelper } from "../helpers";
 import { Sprite, Tilemap, Tileset } from "../phaser-aliases";
 import {
@@ -122,6 +122,12 @@ export class ForestLevel {
     this.setCollisions();
   }
 
+  public update(): void {
+    this._ennemies.getChildren().forEach((ennemy) => {
+      ennemy.update();
+    });
+  }
+
   private addBackgrounds(): void {
     const backgrounds = [
       ImageTag.FOREST_BACKGROUND_DAY_1,
@@ -200,13 +206,6 @@ export class ForestLevel {
   }
 
   private addEnnemies(): void {
-    const ennemies = this._map
-      .createFromObjects(TilemapObjectsTag.POSITIONS, {
-        type: "ennemy",
-        classType: Sprite,
-      })
-      .filter((ennemy): ennemy is Sprite => ennemy instanceof Sprite);
-
     const positions = this._map.objects.find(
       (objectLayer) => objectLayer.name === TilemapObjectsTag.POSITIONS
     )?.objects;
@@ -221,19 +220,20 @@ export class ForestLevel {
       if (!patrol.x || !patrol.y || !patrol.polyline || patrol.polyline.length < 2) {
         throw Error("Invalid patrol object");
       }
-      console.log("patrol", patrol);
 
       const { x, y, polyline } = patrol;
 
-      const ennemyObject = new Ennemy(this._scene, patrol.name as EnnemyTag);
-      ennemyObject.spawn(x, y);
-
-      const endingPoint = {
-        x: polyline[1].x + x,
-        y: polyline[1].y + y,
+      const ennemyConfig: EnnemyConfig = {
+        x,
+        y,
+        chaseDistance: 200,
+        patrolDistance: polyline[1].x,
+        speed: this.hero.speed - 30,
+        sprite: patrol.name as EnnemyTag,
+        scene: this._scene,
       };
 
-      ennemyObject.patrol(endingPoint);
+      const ennemyObject = new Ennemy(ennemyConfig, this.hero);
 
       this._ennemies.add(ennemyObject);
     });
