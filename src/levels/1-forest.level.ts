@@ -207,10 +207,33 @@ export class ForestLevel {
       })
       .filter((ennemy): ennemy is Sprite => ennemy instanceof Sprite);
 
-    ennemies.forEach((ennemy) => {
-      ennemy.alpha = 0;
-      const ennemyObject = new Ennemy(this._scene, ennemy.name as EnnemyTag);
-      ennemyObject.spawn(ennemy.x, ennemy.y);
+    const positions = this._map.objects.find(
+      (objectLayer) => objectLayer.name === TilemapObjectsTag.POSITIONS
+    )?.objects;
+
+    if (!positions) {
+      throw Error("Positions layer not found");
+    }
+
+    const patrols = positions.filter((position) => position.type === "ennemy_patrol");
+
+    patrols.forEach((patrol) => {
+      if (!patrol.x || !patrol.y || !patrol.polyline || patrol.polyline.length < 2) {
+        throw Error("Invalid patrol object");
+      }
+      console.log("patrol", patrol);
+
+      const { x, y, polyline } = patrol;
+
+      const ennemyObject = new Ennemy(this._scene, patrol.name as EnnemyTag);
+      ennemyObject.spawn(x, y);
+
+      const endingPoint = {
+        x: polyline[1].x + x,
+        y: polyline[1].y + y,
+      };
+
+      ennemyObject.patrol(endingPoint);
 
       this._ennemies.add(ennemyObject);
     });
