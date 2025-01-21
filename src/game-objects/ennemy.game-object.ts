@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
 import { GameHelper } from "../helpers";
 import { ArcadeBody, Sprite } from "../phaser-aliases";
-import { AnimationTag, EnnemyTag } from "../tags";
+import { AnimationTag, EnnemyTag, SfxTag } from "../tags";
 import { Hero } from "./hero.game-object";
 
 export interface EnnemyConfig {
@@ -12,20 +12,19 @@ export interface EnnemyConfig {
   patrolDistance: number;
   chaseDistance: number;
   speed: number;
+  patrolSpeed: number;
   sprite: EnnemyTag;
+  hp: number;
 }
 
 export class Ennemy extends Sprite {
   public declare body: ArcadeBody;
 
-  private _patrolDistance: number;
-  private _chaseDistance: number;
   private _player: Hero;
   private _startingX: number;
-  private _spriteTag: EnnemyTag;
   private _patrolDirection = 1;
-  private _speed = 60;
   private _patrolTween: Phaser.Tweens.Tween | null = null;
+  private _config: EnnemyConfig;
 
   private get _isPatrolling(): boolean {
     return this._patrolTween !== null;
@@ -34,10 +33,7 @@ export class Ennemy extends Sprite {
   constructor(config: EnnemyConfig, player: Hero) {
     super(config.scene, config.x, config.y, config.sprite);
     this._startingX = config.x;
-    this._patrolDistance = config.patrolDistance;
-    this._chaseDistance = config.chaseDistance;
-    this._speed = config.speed;
-    this._spriteTag = config.sprite;
+    this._config = config;
 
     this._player = player;
 
@@ -54,16 +50,38 @@ export class Ennemy extends Sprite {
   }
 
   public update(): void {
+    if (this._config.hp <= 0) {
+      return;
+    }
+
     this.updateFlipX();
 
     const distanceToPlayer = Phaser.Math.Distance.Between(this.x, this.y, this._player.x, this._player.y);
 
-    if (distanceToPlayer <= this._chaseDistance) {
+    if (distanceToPlayer <= this._config.chaseDistance) {
       this.stopPatrol();
       this.chasePlayer();
     } //
-    else if (distanceToPlayer > this._chaseDistance && this._patrolTween === null) {
+    else if (distanceToPlayer > this._config.chaseDistance && this._patrolTween === null) {
       this.returnToStart();
+    }
+
+    GameHelper.animate(this, AnimationTag.ENNEMY_MOVING, {
+      exceptIf: [AnimationTag.ENNEMY_DEATH, AnimationTag.ENNEMY_HURT],
+    });
+  }
+
+  public hurt(damage: number): void {
+    this._config.hp -= damage;
+
+    if (this._config.hp <= 0) {
+      this.anims.play(AnimationTag.ENNEMY_DEATH);
+      this.body.setVelocityX(0);
+      this.on("animationcomplete", () => this.destroy());
+      this.scene.sound.play(SfxTag.PIXIE_DEAD);
+    } else {
+      this.anims.play(AnimationTag.ENNEMY_HURT);
+      this.scene.sound.play(SfxTag.PIXIE_HURT);
     }
   }
 
@@ -72,12 +90,12 @@ export class Ennemy extends Sprite {
       return;
     }
 
-    this._patrolDirection = Math.sign(this._patrolDistance);
+    this._patrolDirection = Math.sign(this._config.patrolDistance);
 
     this._patrolTween = this.scene.tweens.add({
       targets: this,
-      x: this._startingX + this._patrolDistance,
-      duration: Math.abs(this._patrolDistance) * 10,
+      x: this._startingX + this._config.patrolDistance,
+      duration: (Math.abs(this._config.patrolDistance) / this._config.patrolSpeed) * 1000,
       yoyo: true,
       repeat: -1,
       onYoyo: () => (this._patrolDirection *= -1),
@@ -94,15 +112,14 @@ export class Ennemy extends Sprite {
 
   private chasePlayer(): void {
     const direction = Math.sign(this._player.x - this.x);
-    this.body.setVelocityX(direction * this._speed);
+    this.body.setVelocityX(direction * this._config.speed);
   }
 
   private returnToStart(): void {
     if (!GameHelper.isCloseEnough(this.x, this._startingX)) {
       const direction = Math.sign(this._startingX - this.x);
-      this.body.setVelocityX(direction * this._speed);
+      this.body.setVelocityX(direction * this._config.patrolSpeed);
     } else {
-      console.log("reached start");
       this.body.setVelocityX(0);
       this.startPatrol();
     }
@@ -120,7 +137,7 @@ export class Ennemy extends Sprite {
   private createAnimations(): void {
     this.anims.create({
       key: AnimationTag.ENNEMY_IDLE,
-      frames: this.anims.generateFrameNumbers(this._spriteTag, {
+      frames: this.anims.generateFrameNumbers(this._config.sprite, {
         start: 0,
         end: 3,
       }),
@@ -130,12 +147,32 @@ export class Ennemy extends Sprite {
 
     this.anims.create({
       key: AnimationTag.ENNEMY_MOVING,
-      frames: this.anims.generateFrameNumbers(this._spriteTag, {
+      frames: this.anims.generateFrameNumbers(this._config.sprite, {
         start: 4,
         end: 7,
       }),
       frameRate: 10,
       repeat: -1,
+    });
+
+    this.anims.create({
+      key: AnimationTag.ENNEMY_HURT,
+      frames: this.anims.generateFrameNumbers(this._config.sprite, {
+        start: 8,
+        end: 9,
+      }),
+      frameRate: 20,
+      repeat: 3,
+    });
+
+    this.anims.create({
+      key: AnimationTag.ENNEMY_DEATH,
+      frames: this.anims.generateFrameNumbers(this._config.sprite, {
+        start: 10,
+        end: 11,
+      }),
+      frameRate: 20,
+      repeat: 3,
     });
   }
 }

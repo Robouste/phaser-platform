@@ -358,6 +358,26 @@
                  "width":0,
                  "x":690,
                  "y":403.333333333333
+                }, 
+                {
+                 "height":0,
+                 "id":20,
+                 "name":"pixie_ennemy_tag",
+                 "polyline":[
+                        {
+                         "x":0,
+                         "y":0
+                        }, 
+                        {
+                         "x":-131.333666666667,
+                         "y":1.33333
+                        }],
+                 "rotation":0,
+                 "type":"ennemy_patrol",
+                 "visible":true,
+                 "width":0,
+                 "x":981.333333333333,
+                 "y":204.666666666667
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -366,7 +386,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":19,
+ "nextobjectid":21,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.0",

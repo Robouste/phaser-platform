@@ -1,7 +1,7 @@
 import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
 import { Ennemy, EnnemyConfig, Hero } from "../game-objects";
-import { GameHelper } from "../helpers";
+import { GameHelper, isEnumValue } from "../helpers";
 import { Sprite, Tilemap, Tileset } from "../phaser-aliases";
 import {
   BackgroundSound,
@@ -222,15 +222,22 @@ export class ForestLevel {
       }
 
       const { x, y, polyline } = patrol;
+      const ennemyTag = patrol.name;
+
+      if (!isEnumValue(EnnemyTag, ennemyTag)) {
+        throw Error("Invalid ennemy tag");
+      }
 
       const ennemyConfig: EnnemyConfig = {
         x,
         y,
         chaseDistance: 200,
         patrolDistance: polyline[1].x,
-        speed: this.hero.speed - 30,
-        sprite: patrol.name as EnnemyTag,
+        speed: this.hero.speed - 80,
+        patrolSpeed: 40,
+        sprite: ennemyTag,
         scene: this._scene,
+        hp: 30,
       };
 
       const ennemyObject = new Ennemy(ennemyConfig, this.hero);
@@ -252,6 +259,17 @@ export class ForestLevel {
         },
       });
       this._scene.sound.play(SfxTag.ARROW_WALL_IMPACT);
+    });
+
+    this._physics.add.collider(this.hero.projectiles, this._ennemies, (projectile, ennemy) => {
+      if (!(ennemy instanceof Ennemy)) {
+        throw Error("ennemy is not a sprite");
+      }
+
+      ennemy.hurt(this.hero.damage);
+      projectile.destroy();
+
+      console.log("hit ennemy", ennemy);
     });
   }
 }

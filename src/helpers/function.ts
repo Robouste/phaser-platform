@@ -45,3 +45,10 @@ export const containsGameObjectValue = (
 
   return false;
 };
+
+export const isEnumValue = <T extends Record<string | number, string | number>>(
+  enumObj: T,
+  value: unknown
+): value is T[keyof T] => {
+  return Object.values(enumObj).includes(value as T[keyof T]);
+};

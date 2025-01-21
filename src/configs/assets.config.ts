@@ -144,6 +144,14 @@ export class AssetsConfig {
         tag: SfxTag.ARROW_WALL_IMPACT,
         url: "audio/sfx/arrow-wall-impact.ogg",
       },
+      {
+        tag: SfxTag.PIXIE_HURT,
+        url: "audio/sfx/pixie-hurt.ogg",
+      },
+      {
+        tag: SfxTag.PIXIE_DEAD,
+        url: "audio/sfx/pixie-dead.ogg",
+      },
     ];
   }
 

@@ -16,12 +16,16 @@ export class Hero extends Sprite {
   public get speed(): number {
     return this._speed;
   }
+  public get damage(): number {
+    return this._damage;
+  }
 
   private _speed = 160;
   private _jumpSpeed = 360;
   private _noOfJump = 2;
   private _maxNoOfJump = 2;
   private _lastJumpTime = 0;
+  private _damage = 17;
   private _cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private _keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   private _shootKey: Phaser.Input.Keyboard.Key;
