@@ -62,7 +62,7 @@ export class Ennemy extends Sprite {
       this.stopPatrol();
       this.chasePlayer();
     } //
-    else if (distanceToPlayer > this._config.chaseDistance && this._patrolTween === null) {
+    else if (distanceToPlayer > this._config.chaseDistance && !this._isPatrolling) {
       this.returnToStart();
     }
 
@@ -77,6 +77,7 @@ export class Ennemy extends Sprite {
     if (this._config.hp <= 0) {
       this.anims.play(AnimationTag.ENNEMY_DEATH);
       this.body.setVelocityX(0);
+      this.body.setEnable(false);
       this.on("animationcomplete", () => this.destroy());
       this.scene.sound.play(SfxTag.PIXIE_DEAD);
     } else {
@@ -116,12 +117,12 @@ export class Ennemy extends Sprite {
   }
 
   private returnToStart(): void {
-    if (!GameHelper.isCloseEnough(this.x, this._startingX)) {
-      const direction = Math.sign(this._startingX - this.x);
-      this.body.setVelocityX(direction * this._config.patrolSpeed);
-    } else {
+    if (GameHelper.isCloseEnough(this.x, this._startingX)) {
       this.body.setVelocityX(0);
       this.startPatrol();
+    } else {
+      const direction = Math.sign(this._startingX - this.x);
+      this.body.setVelocityX(direction * this._config.patrolSpeed);
     }
   }
 

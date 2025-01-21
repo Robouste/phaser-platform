@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
 import { Ennemy, EnnemyConfig, Hero } from "../game-objects";
 import { GameHelper, isEnumValue } from "../helpers";
-import { Sprite, Tilemap, Tileset } from "../phaser-aliases";
+import { Sprite, Tilemap } from "../phaser-aliases";
 import {
   BackgroundSound,
   EnnemyTag,
@@ -25,23 +25,20 @@ export const unionTypeToArray = <T>() => {
   return <U extends NonEmptyArray<T>>(...elements: MustInclude<T, U>) => elements;
 };
 
-const tilesetNames = [
-  "base-tiles",
-  "decorative-tiles",
-  "water-animation",
-  "tree_bright3",
-  "tree_bright4",
-  "grass1",
-  "grass2",
-  "grass3",
-  "plant1",
-  "plant2",
-  "plant3",
-] as const;
-type TilesetName = (typeof tilesetNames)[number];
+type TilesetName =
+  | "base-tiles"
+  | "decorative-tiles"
+  | "water-animation"
+  | "tree_bright3"
+  | "tree_bright4"
+  | "grass1"
+  | "grass2"
+  | "grass3"
+  | "plant1"
+  | "plant2"
+  | "plant3";
 
 type LayerConfig = {
-  tilesets: TilesetName[];
   depth: number;
 };
 
@@ -58,46 +55,32 @@ export class ForestLevel {
   private _map: Tilemap;
   private _layersConfig: Record<TilemapLayerTag, LayerConfig> = {
     [TilemapLayerTag.BACKGROUND]: {
-      tilesets: ["base-tiles"],
       depth: depthsConfig.background,
     },
     [TilemapLayerTag.MAP]: {
-      tilesets: ["base-tiles", "water-animation"],
       depth: depthsConfig.background,
     },
     [TilemapLayerTag.DECORATIONS]: {
-      tilesets: [
-        "base-tiles",
-        "decorative-tiles",
-        "tree_bright3",
-        "tree_bright4",
-        "grass1",
-        "grass2",
-        "grass3",
-        "plant1",
-        "plant2",
-        "plant3",
-      ],
       depth: depthsConfig.background,
     },
     [TilemapLayerTag.FOREGROUND]: {
-      tilesets: ["base-tiles", "decorative-tiles"],
       depth: depthsConfig.foreground,
     },
   };
-  private _tilesetsConfig: Record<TilesetName, TilesetTag> = {
-    "base-tiles": TilesetTag.FOREST_BASE,
-    "decorative-tiles": TilesetTag.FOREST_DECORATIVE,
-    "water-animation": TilesetTag.FOREST_WATER_ANIMATION,
-    tree_bright3: TilesetTag.FOREST_TREE_BRIGHT_3_ANIMATION,
-    tree_bright4: TilesetTag.FOREST_TREE_BRIGHT_4_ANIMATION,
-    grass1: TilesetTag.FOREST_GRASS_1_ANIMATION,
-    grass2: TilesetTag.FOREST_GRASS_2_ANIMATION,
-    grass3: TilesetTag.FOREST_GRASS_3_ANIMATION,
-    plant1: TilesetTag.FOREST_PLANT_1_ANIMATION,
-    plant2: TilesetTag.FOREST_PLANT_2_ANIMATION,
-    plant3: TilesetTag.FOREST_PLANT_3_ANIMATION,
-  };
+
+  private _tilesets: { name: TilesetName; tag: TilesetTag }[] = [
+    { name: "base-tiles", tag: TilesetTag.FOREST_BASE },
+    { name: "decorative-tiles", tag: TilesetTag.FOREST_DECORATIVE },
+    { name: "water-animation", tag: TilesetTag.FOREST_WATER_ANIMATION },
+    { name: "tree_bright3", tag: TilesetTag.FOREST_TREE_BRIGHT_3_ANIMATION },
+    { name: "tree_bright4", tag: TilesetTag.FOREST_TREE_BRIGHT_4_ANIMATION },
+    { name: "grass1", tag: TilesetTag.FOREST_GRASS_1_ANIMATION },
+    { name: "grass2", tag: TilesetTag.FOREST_GRASS_2_ANIMATION },
+    { name: "grass3", tag: TilesetTag.FOREST_GRASS_3_ANIMATION },
+    { name: "plant1", tag: TilesetTag.FOREST_PLANT_1_ANIMATION },
+    { name: "plant2", tag: TilesetTag.FOREST_PLANT_2_ANIMATION },
+    { name: "plant3", tag: TilesetTag.FOREST_PLANT_3_ANIMATION },
+  ];
 
   constructor(public hero: Hero, private _scene: Scene) {
     this._scene.sound.play(BackgroundSound.RIVER_FLOWING_INSECTS, {
@@ -145,30 +128,21 @@ export class ForestLevel {
   }
 
   private generateMap(): void {
-    // assign each tileset to its name.
-    const tilesetsMap = tilesetNames.reduce((acc, tilesetName) => {
-      const tileset = this._map.addTilesetImage(tilesetName, this._tilesetsConfig[tilesetName], 32, 32, 1, 2);
-
-      if (!tileset) {
-        throw Error("Tileset not found");
-      }
-
-      acc[tilesetName] = tileset;
-      return acc;
-    }, {} as Record<TilesetName, Tileset>);
+    this._tilesets.forEach((tileset) => {
+      this._map.addTilesetImage(tileset.name, tileset.tag, 32, 32, 1, 2);
+    });
 
     Object.keys(this._layersConfig)
       .filter((key): key is TilemapLayerTag => key in this._layersConfig)
       .forEach((tag) => {
-        const layer = this._map.createLayer(tag, this.getTilesetNamesForLayer(tag, tilesetsMap));
+        const layer = this._map.createLayer(
+          tag,
+          this._tilesets.map((tileset) => tileset.name)
+        );
         layer?.setDepth(this._layersConfig[tag].depth);
       });
 
     this._scene.sys.animatedTiles.init(this._map);
-  }
-
-  private getTilesetNamesForLayer(layer: TilemapLayerTag, tilesetsMap: Record<TilesetName, Tileset>): Tileset[] {
-    return this._layersConfig[layer].tilesets.map((tilesetName) => tilesetsMap[tilesetName]);
   }
 
   private addColliders(): void {
@@ -251,7 +225,6 @@ export class ForestLevel {
     this._physics.add.collider(this._ennemies, this._colliderGroup);
 
     this._physics.add.collider(this.hero.projectiles, this._colliderGroup, (projectile) => {
-      console.log("collided");
       this._scene.time.addEvent({
         delay: 4000,
         callback: () => {
@@ -268,8 +241,6 @@ export class ForestLevel {
 
       ennemy.hurt(this.hero.damage);
       projectile.destroy();
-
-      console.log("hit ennemy", ennemy);
     });
   }
 }
