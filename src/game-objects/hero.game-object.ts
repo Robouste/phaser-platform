@@ -24,6 +24,9 @@ export class Hero extends Sprite {
   public get offset(): { x: number; y: number } {
     return this._offset;
   }
+  public get heroState(): HeroState {
+    return this._state;
+  }
 
   private _speed = 160;
   private _jumpSpeed = 360;

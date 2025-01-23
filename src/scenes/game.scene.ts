@@ -28,6 +28,28 @@ export class Game extends Scene {
     this._keyboard = this.input.keyboard;
     this.createDebug();
 
+    this.input.on(Phaser.Input.Events.POINTER_DOWN, (pointer: Phaser.Input.Pointer) => {
+      if (!this._hero) {
+        return;
+      }
+
+      const xIsLeft = pointer.x < this.cameras.main.width / 2;
+      const yIsTop = pointer.y < this.cameras.main.height / 2;
+
+      if (xIsLeft && yIsTop) {
+        this._hero.heroState.set({ action: "JUMPING" });
+      }
+      if (!xIsLeft && yIsTop) {
+        this._hero.heroState.set({ action: "SHOOTING" });
+      }
+      if (xIsLeft && !yIsTop) {
+        this._hero.heroState.set({ action: "MOVING-LEFT" });
+      }
+      if (!xIsLeft && !yIsTop) {
+        this._hero.heroState.set({ action: "MOVING-RIGHT" });
+      }
+    });
+
     this._hero = new Hero(this);
     this._currentLevel = new ForestLevel(this._hero, this);
   }
