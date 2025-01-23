@@ -42,12 +42,6 @@ export class Game extends Scene {
       if (!xIsLeft && yIsTop) {
         this._hero.heroState.set({ action: "SHOOTING" });
       }
-      if (xIsLeft && !yIsTop) {
-        this._hero.heroState.set({ action: "MOVING-LEFT" });
-      }
-      if (!xIsLeft && !yIsTop) {
-        this._hero.heroState.set({ action: "MOVING-RIGHT" });
-      }
     });
 
     this._hero = new Hero(this);
@@ -69,11 +63,34 @@ export class Game extends Scene {
       }
     }
 
+    const pointer = this.input.activePointer;
+
+    if (pointer.isDown) {
+      this.handlePointer(pointer);
+    }
+
     this._hero?.update(time, delta);
     this._currentLevel?.update();
   }
 
   private createDebug(): void {
     this._toggleDebugKey = this._keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+  }
+
+  private handlePointer(pointer: Phaser.Input.Pointer) {
+    if (!this._hero) {
+      return;
+    }
+
+    const xIsLeft = pointer.x < this.cameras.main.width / 2;
+    const yIsTop = pointer.y < this.cameras.main.height / 2;
+
+    if (xIsLeft && !yIsTop) {
+      this._hero.heroState.set({ action: "MOVING-LEFT" });
+      console.log("should move left");
+    }
+    if (!xIsLeft && !yIsTop) {
+      this._hero.heroState.set({ action: "MOVING-RIGHT" });
+    }
   }
 }
