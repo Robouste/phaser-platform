@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
+import { HeroState } from "../helpers";
 import { GameHelper } from "../helpers/game.helper";
 import { ArcadeBody, ArcadeSprite, Sprite } from "../phaser-aliases";
 import { AnimationTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
@@ -7,6 +8,7 @@ import { AnimationTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
 export class Hero extends Sprite {
   public declare body: ArcadeBody;
   public projectiles: Phaser.Physics.Arcade.Group;
+
   public get isMovingLeft(): boolean {
     return this._cursors.left.isDown;
   }
@@ -18,6 +20,9 @@ export class Hero extends Sprite {
   }
   public get damage(): number {
     return this._damage;
+  }
+  public get offset(): { x: number; y: number } {
+    return this._offset;
   }
 
   private _speed = 160;
@@ -35,6 +40,7 @@ export class Hero extends Sprite {
     x: 8,
     y: 14,
   };
+  private _state: HeroState;
 
   constructor(scene: Scene) {
     super(scene, 0, 0, SpritesheetTag.HERO);
@@ -44,6 +50,8 @@ export class Hero extends Sprite {
     if (!this.scene.input.keyboard) {
       throw Error("Keyboard plugin is not available");
     }
+
+    this._state = new HeroState(this);
 
     this._keyboard = this.scene.input.keyboard;
     this._cursors = this._keyboard.createCursorKeys();
@@ -66,6 +74,8 @@ export class Hero extends Sprite {
     const hitboxHeight = this.height * 0.8;
     this.body.setSize(hitboxWidth, hitboxHeight);
     this.body.setOffset(this._offset.x, this._offset.y);
+
+    this._state.set({ action: "IDLE" });
   }
 
   public update(time: number, _: number): void {
@@ -73,25 +83,37 @@ export class Hero extends Sprite {
     this.handleProjectiles();
   }
 
+  public shoot(): void {
+    this.scene.sound.play(SfxTag.ARROW_SHOOT);
+
+    GameHelper.animate(this, AnimationTag.HERO_SHOOT, {
+      ignoreIfPlaying: false,
+    });
+    const velocity = this.flipX ? -600 : 600;
+
+    const projectile: ArcadeSprite = this.projectiles.create(this.x, this.y, ImageTag.PROJECTILE_ARROW);
+    projectile.setFlipX(this.flipX);
+    projectile.setVelocityX(velocity);
+  }
+
+  public jump(): void {
+    if (this._noOfJump <= 0) {
+      return;
+    }
+
+    this._noOfJump--;
+    this._isJumping = true;
+
+    this.body.setVelocityY(-this._jumpSpeed);
+    this.scene.sound.play(SfxTag.JUMP);
+    GameHelper.animate(this, AnimationTag.HERO_JUMP);
+  }
+
   private handleMovements(time: number): void {
-    const isGrounded = this.body.touching.down;
-
-    if (isGrounded) {
-      if (this.isMovingLeft || this.isMovingRight) {
-        GameHelper.animate(this, AnimationTag.WALK, {
-          exceptIf: [AnimationTag.JUMP, AnimationTag.SHOOT],
-        });
-      } //
-      else {
-        GameHelper.animate(this, AnimationTag.IDLE, {
-          exceptIf: [AnimationTag.JUMP, AnimationTag.SHOOT],
-        });
-
-        this.body.setVelocityX(0);
-      }
-
-      // for some reason, this "isGrounded" is sometimes true, right after jumping
+    if (this.body.touching.down) {
+      // for some reason, touching.down is sometimes true, right after jumping
       const stupidHack = time - this._lastJumpTime > 100;
+
       //~ Is landing
       if (this._isJumping && stupidHack) {
         this._isJumping = false;
@@ -101,24 +123,24 @@ export class Hero extends Sprite {
     }
 
     if (this.isMovingRight) {
-      this.body.setVelocityX(this._speed);
-      this.setFlipX(false);
-      this.body.setOffset(this._offset.x, this._offset.y);
-    }
-
-    if (this.isMovingLeft) {
-      this.body.setVelocityX(-this._speed);
-      this.setFlipX(true);
-      this.body.setOffset(this._offset.x + 6, this._offset.y);
+      this._state.set({ action: "MOVING-RIGHT" });
+    } else if (this.isMovingLeft) {
+      this._state.set({ action: "MOVING-LEFT" });
+    } else {
+      this.body.setVelocityX(0);
     }
 
     if (Phaser.Input.Keyboard.JustDown(this._cursors.up)) {
       this._lastJumpTime = time;
-      this.jump();
+      this._state.set({ action: "JUMPING" });
     }
 
     if (Phaser.Input.Keyboard.JustDown(this._shootKey)) {
-      this.shoot();
+      this._state.set({ action: "SHOOTING" });
+    }
+
+    if (this.body.velocity.x === 0 && this.body.velocity.y === 0) {
+      this._state.set({ action: "IDLE" });
     }
   }
 
@@ -138,22 +160,9 @@ export class Hero extends Sprite {
     }, this);
   }
 
-  private jump(): void {
-    if (this._noOfJump <= 0) {
-      return;
-    }
-
-    this._noOfJump--;
-    this._isJumping = true;
-
-    this.body.setVelocityY(-this._jumpSpeed);
-    this.scene.sound.play(SfxTag.JUMP);
-    GameHelper.animate(this, AnimationTag.JUMP);
-  }
-
   private createAnimations(): void {
     this.anims.create({
-      key: AnimationTag.IDLE,
+      key: AnimationTag.HERO_IDLE,
       frames: this.anims.generateFrameNumbers(SpritesheetTag.HERO, {
         start: 0,
         end: 3,
@@ -163,7 +172,7 @@ export class Hero extends Sprite {
     });
 
     this.anims.create({
-      key: AnimationTag.WALK,
+      key: AnimationTag.HERO_WALK,
       frames: this.anims.generateFrameNumbers(SpritesheetTag.HERO, {
         start: 5,
         end: 8,
@@ -173,7 +182,7 @@ export class Hero extends Sprite {
     });
 
     this.anims.create({
-      key: AnimationTag.JUMP,
+      key: AnimationTag.HERO_JUMP,
       frames: this.anims.generateFrameNumbers(SpritesheetTag.HERO, {
         start: 20,
         end: 22,
@@ -182,25 +191,30 @@ export class Hero extends Sprite {
     });
 
     this.anims.create({
-      key: AnimationTag.SHOOT,
+      key: AnimationTag.HERO_SHOOT,
       frames: this.anims.generateFrameNumbers(SpritesheetTag.HERO, {
         start: 15,
         end: 19,
       }),
       frameRate: 15,
     });
-  }
 
-  private shoot(): void {
-    this.scene.sound.play(SfxTag.ARROW_SHOOT);
-
-    GameHelper.animate(this, AnimationTag.SHOOT, {
-      ignoreIfPlaying: false,
+    this.anims.create({
+      key: AnimationTag.HERO_HURT,
+      frames: this.anims.generateFrameNumbers(SpritesheetTag.HERO, {
+        start: 9,
+        end: 10,
+      }),
+      frameRate: 10,
     });
-    const velocity = this.flipX ? -600 : 600;
 
-    const projectile: ArcadeSprite = this.projectiles.create(this.x, this.y, ImageTag.PROJECTILE_ARROW);
-    projectile.setFlipX(this.flipX);
-    projectile.setVelocityX(velocity);
+    this.anims.create({
+      key: AnimationTag.HERO_DIE,
+      frames: this.anims.generateFrameNumbers(SpritesheetTag.HERO, {
+        start: 11,
+        end: 12,
+      }),
+      frameRate: 10,
+    });
   }
 }

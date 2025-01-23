@@ -21,7 +21,8 @@
   "license": "MIT",
   "dependencies": {
     "phaser": "^3.87.0",
-    "phaser-animated-tiles": "^2.0.2"
+    "phaser-animated-tiles": "^2.0.2",
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@jgoz/esbuild-plugin-livereload": "^2.0.5",
