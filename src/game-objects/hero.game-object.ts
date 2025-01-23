@@ -129,7 +129,7 @@ export class Hero extends Sprite {
       this._state.set({ action: "MOVING-RIGHT" });
     } else if (this.isMovingLeft) {
       this._state.set({ action: "MOVING-LEFT" });
-    } else {
+    } else if (!this.scene.input.activePointer.isDown) {
       this.body.setVelocityX(0);
     }
 
