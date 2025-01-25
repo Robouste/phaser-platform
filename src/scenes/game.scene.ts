@@ -45,6 +45,7 @@ export class Game extends Scene {
     });
 
     this._hero = new Hero(this);
+    this._hero.on("destroy", () => this.scene.start(SceneTag.GAME_OVER));
     this._currentLevel = new ForestLevel(this._hero, this);
   }
 
@@ -87,7 +88,6 @@ export class Game extends Scene {
 
     if (xIsLeft && !yIsTop) {
       this._hero.heroState.set({ action: "MOVING-LEFT" });
-      console.log("should move left");
     }
     if (!xIsLeft && !yIsTop) {
       this._hero.heroState.set({ action: "MOVING-RIGHT" });

@@ -4,4 +4,5 @@ export const depthsConfig = {
   map: 1,
   foreground: 100,
   ennemies: 50,
+  atkHitbox: 60,
 };

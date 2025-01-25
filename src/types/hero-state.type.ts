@@ -18,7 +18,12 @@ export type MovingRightStateParams = BaseStateParams<"MOVING-RIGHT">;
 export type JumpingStateParams = BaseStateParams<"JUMPING">;
 export type FallingStateParams = BaseStateParams<"FALLING">;
 export type ShootingStateParams = BaseStateParams<"SHOOTING">;
-export type HurtStateParams = BaseStateParams<"HURT">;
+export type HurtStateParams = BaseStateParams<
+  "HURT",
+  {
+    damage: number;
+  }
+>;
 export type DyingStateParams = BaseStateParams<"DYING">;
 
 export type HeroStateParams =

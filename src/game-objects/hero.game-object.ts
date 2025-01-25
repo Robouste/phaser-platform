@@ -2,10 +2,10 @@ import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
 import { HeroState } from "../helpers";
 import { GameHelper } from "../helpers/game.helper";
-import { ArcadeBody, ArcadeSprite, Sprite } from "../phaser-aliases";
+import { ArcadeBody, ArcadeSprite } from "../phaser-aliases";
 import { AnimationTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
 
-export class Hero extends Sprite {
+export class Hero extends ArcadeSprite {
   public declare body: ArcadeBody;
   public projectiles: Phaser.Physics.Arcade.Group;
 
@@ -27,7 +27,14 @@ export class Hero extends Sprite {
   public get heroState(): HeroState {
     return this._state;
   }
+  public get hp(): number {
+    return this._hp;
+  }
 
+  private _invincibilityWindow = 1000;
+  private _isInvincible = false;
+  private _hp = 4;
+  private _maximumHp = 4;
   private _speed = 160;
   private _jumpSpeed = 360;
   private _noOfJump = 2;
@@ -38,6 +45,7 @@ export class Hero extends Sprite {
   private _keyboard: Phaser.Input.Keyboard.KeyboardPlugin;
   private _shootKey: Phaser.Input.Keyboard.Key;
   private _isJumping = false;
+
   // That's SHIT. I need to understand better how it works and make it more dynamic
   private _offset = {
     x: 8,
@@ -82,6 +90,9 @@ export class Hero extends Sprite {
   }
 
   public update(time: number, _: number): void {
+    if (this._hp <= 0) {
+      return;
+    }
     this.handleMovements(time);
     this.handleProjectiles();
   }
@@ -110,6 +121,35 @@ export class Hero extends Sprite {
     this.body.setVelocityY(-this._jumpSpeed);
     this.scene.sound.play(SfxTag.JUMP);
     GameHelper.animate(this, AnimationTag.HERO_JUMP);
+  }
+
+  public hurt(damage: number): void {
+    if (this._isInvincible) {
+      return;
+    }
+
+    this._isInvincible = true;
+    this.scene.time.delayedCall(this._invincibilityWindow, () => {
+      this._isInvincible = false;
+    });
+
+    this._hp -= damage;
+    console.log("aie");
+
+    if (this._hp <= 0) {
+      this.scene.sound.play(SfxTag.HERO_DIE);
+      GameHelper.animate(this, AnimationTag.HERO_DIE);
+      this.on(GameHelper.animCompleteEvent(AnimationTag.HERO_DIE), () => {
+        this.destroy();
+      });
+    } else {
+      this.scene.sound.play(SfxTag.HERO_HURT);
+      GameHelper.animate(this, AnimationTag.HERO_HURT);
+    }
+  }
+
+  public heal(amount: number): void {
+    this._hp = Math.min(this._hp + amount, this._maximumHp);
   }
 
   private handleMovements(time: number): void {

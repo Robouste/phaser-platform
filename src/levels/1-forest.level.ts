@@ -212,6 +212,9 @@ export class ForestLevel {
         sprite: ennemyTag,
         scene: this._scene,
         hp: 30,
+        range: 40,
+        atkCooldown: 1000,
+        damage: 1,
       };
 
       const ennemyObject = new Ennemy(ennemyConfig, this.hero);

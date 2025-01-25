@@ -114,6 +114,14 @@ export class AssetsConfig {
           frameHeight: 32,
         },
       },
+      {
+        tag: SpritesheetTag.PIXIE_HITBOX,
+        url: "spritesheets/ennemies/pixie-hitbox-spritesheet.webp",
+        config: {
+          frameWidth: 32,
+          frameHeight: 32,
+        },
+      },
     ];
   }
 
@@ -151,6 +159,18 @@ export class AssetsConfig {
       {
         tag: SfxTag.PIXIE_DEAD,
         url: "audio/sfx/pixie-dead.ogg",
+      },
+      {
+        tag: SfxTag.PIXIE_ATTACK,
+        url: "audio/sfx/pixie-attack.ogg",
+      },
+      {
+        tag: SfxTag.HERO_HURT,
+        url: "audio/sfx/hero-hurt.ogg",
+      },
+      {
+        tag: SfxTag.HERO_DIE,
+        url: "audio/sfx/hero-die.ogg",
       },
     ];
   }

@@ -29,7 +29,7 @@ export class HeroState {
     switch (state.action) {
       case "IDLE":
         GameHelper.animate(this._hero, AnimationTag.HERO_IDLE, {
-          exceptIf: [AnimationTag.HERO_JUMP, AnimationTag.HERO_SHOOT],
+          exceptIf: [AnimationTag.HERO_JUMP, AnimationTag.HERO_SHOOT, AnimationTag.HERO_HURT, AnimationTag.HERO_DIE],
         });
 
         this._hero.body.setVelocityX(0);
@@ -56,7 +56,10 @@ export class HeroState {
         this._hero.shoot();
         break;
       case "HURT":
-        this._hero.play(AnimationTag.HERO_HURT);
+        // GameHelper.animate(this._hero, AnimationTag.HERO_HURT);
+
+        // this._hero.body.setVelocityX(0);
+
         break;
       case "DYING":
         this._hero.play(AnimationTag.HERO_DIE);

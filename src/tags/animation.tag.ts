@@ -9,4 +9,6 @@ export enum AnimationTag {
   ENNEMY_MOVING = "ennemy-moving_animation",
   ENNEMY_HURT = "ennemy-hurt_animation",
   ENNEMY_DEATH = "ennemy-death_animation",
+  ENNEMY_ATTACK = "ennemy-attack_animation",
+  ENNEMY_ATTACK_HITBOX = "ennemy-attack-hitbox_animation",
 }
