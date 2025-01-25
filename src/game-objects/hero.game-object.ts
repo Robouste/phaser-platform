@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
 import { HeroState } from "../helpers";
 import { GameHelper } from "../helpers/game.helper";
-import { ArcadeBody, ArcadeSprite } from "../phaser-aliases";
+import { ANIMATION, ArcadeBody, ArcadeSprite } from "../phaser-aliases";
 import { AnimationTag, HeroEventTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
 
 export class Hero extends ArcadeSprite {
@@ -61,6 +61,8 @@ export class Hero extends ArcadeSprite {
 
     this.setScale(0.5).setDepth(depthsConfig.hero);
 
+    // this.setCollideWorldBounds(true);
+
     if (!this.scene.input.keyboard) {
       throw Error("Keyboard plugin is not available");
     }
@@ -86,6 +88,7 @@ export class Hero extends ArcadeSprite {
 
     const hitboxWidth = this.width * 0.7;
     const hitboxHeight = this.height * 0.8;
+
     this.body.setSize(hitboxWidth, hitboxHeight);
     this.body.setOffset(this._offset.x, this._offset.y);
 
@@ -143,7 +146,7 @@ export class Hero extends ArcadeSprite {
     if (this._hp <= 0) {
       this.scene.sound.play(SfxTag.HERO_DIE);
       GameHelper.animate(this, AnimationTag.HERO_DIE);
-      this.on(GameHelper.animCompleteEvent(AnimationTag.HERO_DIE), () => {
+      this.on(ANIMATION.COMPLETE_KEY + AnimationTag.HERO_DIE, () => {
         this.destroy();
       });
     } else {
@@ -253,6 +256,7 @@ export class Hero extends ArcadeSprite {
         end: 10,
       }),
       frameRate: 10,
+      repeat: GameHelper.getAnimationRepetition(this._invincibilityWindow, 2, 10),
     });
 
     this.anims.create({

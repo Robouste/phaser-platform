@@ -466,8 +466,8 @@
                  "type":"ennemy_patrol",
                  "visible":true,
                  "width":0,
-                 "x":690,
-                 "y":403.333333333333
+                 "x":691,
+                 "y":391.833333333333
                 }, 
                 {
                  "height":0,
@@ -486,8 +486,8 @@
                  "type":"ennemy_patrol",
                  "visible":true,
                  "width":0,
-                 "x":981.333333333333,
-                 "y":204.666666666667
+                 "x":982.833333333333,
+                 "y":194.666666666667
                 }, 
                 {
                  "height":0,
@@ -506,8 +506,8 @@
                  "type":"ennemy_patrol",
                  "visible":true,
                  "width":0,
-                 "x":1255.5,
-                 "y":401.5
+                 "x":1253,
+                 "y":387.5
                 }],
          "opacity":1,
          "type":"objectgroup",

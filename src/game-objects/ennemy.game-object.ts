@@ -1,8 +1,8 @@
 import { Scene } from "phaser";
 import { depthsConfig } from "../configs";
 import { GameHelper } from "../helpers";
-import { ArcadeBody, Sprite } from "../phaser-aliases";
-import { AnimationTag, EnnemyTag, SfxTag, SpritesheetTag } from "../tags";
+import { ANIMATION, ArcadeBody, ArcadeSprite } from "../phaser-aliases";
+import { AnimationTag, EnnemyTag, SfxTag } from "../tags";
 import { Hero } from "./hero.game-object";
 
 export interface EnnemyConfig {
@@ -14,26 +14,33 @@ export interface EnnemyConfig {
   speed: number;
   patrolSpeed: number;
   sprite: EnnemyTag;
+  attackSprite?: EnnemyTag;
   hp: number;
   range: number;
   atkCooldown: number;
   damage: number;
 }
 
-export class Ennemy extends Sprite {
+export class Ennemy extends ArcadeSprite {
   public declare body: ArcadeBody;
 
   private _player: Hero;
-  private _atkHitbox: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
   private _startingX: number;
   private _patrolDirection = 1;
   private _patrolTween: Phaser.Tweens.Tween | null = null;
   private _config: EnnemyConfig;
   private _attacking = false;
   private _canAttack = true;
+  private _defaultWidth: number;
+  private _attackHitbox: Phaser.GameObjects.Rectangle & {
+    body: ArcadeBody;
+  };
 
   private get _isPatrolling(): boolean {
     return this._patrolTween !== null;
+  }
+  private get _physics(): Phaser.Physics.Arcade.ArcadePhysics {
+    return this.scene.physics;
   }
 
   constructor(config: EnnemyConfig, player: Hero) {
@@ -42,29 +49,39 @@ export class Ennemy extends Sprite {
     this._config = config;
 
     this._player = player;
+    this._defaultWidth = this.width;
 
     this.scene.add.existing(this);
-    this.scene.physics.add.existing(this);
-
-    const hitbox = this.scene.add
-      .sprite(this.x, this.y, SpritesheetTag.PIXIE_HITBOX)
-      .setVisible(false)
-      .setDepth(depthsConfig.atkHitbox);
-
-    this._atkHitbox = this.scene.physics.add.existing(hitbox) as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-    this.scene.add.existing(this._atkHitbox);
-
-    this._atkHitbox.body.setAllowGravity(false);
-    this._atkHitbox.body.setEnable(false);
-    this.scene.physics.world.remove(this._atkHitbox.body);
+    this._physics.add.existing(this);
 
     this.flipX = true;
 
     this.setDepth(depthsConfig.ennemies);
-
-    this.scene.physics.add.collider(this._atkHitbox, this._player, () => {
-      this._player.hurt(this._config.damage);
+    this.setbodySize({
+      isAttacking: false,
     });
+
+    const attackHitbox = this.scene.add.rectangle(0, 0, 32, 32, 0xffffff, 0);
+
+    this._attackHitbox = this._physics.add.existing(attackHitbox) as Phaser.GameObjects.Rectangle & {
+      body: ArcadeBody;
+    };
+
+    this._attackHitbox.body.setAllowGravity(false);
+    this._attackHitbox.body.setEnable(false);
+    this._physics.world.remove(this._attackHitbox.body);
+
+    this._physics.add.collider(this._attackHitbox, this._player);
+
+    this._physics.add.overlap(
+      this._attackHitbox,
+      this._player,
+      () => {
+        this._player.hurt(this._config.damage);
+      },
+      undefined,
+      this
+    );
 
     this.createAnimations();
     this.startPatrol();
@@ -102,7 +119,7 @@ export class Ennemy extends Sprite {
       this.anims.play(AnimationTag.ENNEMY_DEATH);
       this.body.setVelocityX(0);
       this.body.setEnable(false);
-      this.on(GameHelper.animCompleteEvent(AnimationTag.ENNEMY_DEATH), () => this.destroy());
+      this.on(ANIMATION.COMPLETE_KEY + AnimationTag.ENNEMY_DEATH, () => this.destroy());
       this.scene.sound.play(SfxTag.PIXIE_DEAD);
     } //
     else {
@@ -137,24 +154,33 @@ export class Ennemy extends Sprite {
 
     this.scene.sound.play(SfxTag.PIXIE_ATTACK);
     const direction = this.flipX ? -1 : 1;
-    this._atkHitbox.setPosition(this.x + direction * this._atkHitbox.width, this.y).setVisible(true);
-    this._atkHitbox.setFlipX(this.flipX);
-    this._atkHitbox.body.setEnable(true);
-    this.scene.physics.world.add(this._atkHitbox.body);
-    this._atkHitbox.anims.play(AnimationTag.ENNEMY_ATTACK_HITBOX);
-    this._atkHitbox.once(GameHelper.animCompleteEvent(AnimationTag.ENNEMY_ATTACK_HITBOX), () => {
-      this._atkHitbox.setVisible(false);
-      this._atkHitbox.body.setEnable(false);
-      this.scene.physics.world.remove(this._atkHitbox.body);
-    });
+    const hitboxPosition = {
+      x: this.x + direction * this._attackHitbox.width,
+      y: this.y,
+    };
+
+    this._attackHitbox.setPosition(hitboxPosition.x, hitboxPosition.y).setVisible(true);
+    this._attackHitbox.body.setEnable(true);
+    this._physics.world.add(this._attackHitbox.body);
 
     this._attacking = true;
     this._canAttack = false;
     this.body.setVelocityX(0);
     GameHelper.animate(this, AnimationTag.ENNEMY_ATTACK);
 
-    this.once(GameHelper.animCompleteEvent(AnimationTag.ENNEMY_ATTACK), () => {
+    this.setbodySize({
+      isAttacking: true,
+    });
+
+    this.once(ANIMATION.COMPLETE_KEY + AnimationTag.ENNEMY_ATTACK, () => {
+      this._attackHitbox.body.setEnable(false);
+      this._physics.world.remove(this._attackHitbox.body);
+
+      this.anims.play(AnimationTag.ENNEMY_IDLE);
       this._attacking = false;
+      this.setbodySize({
+        isAttacking: false,
+      });
       this.scene.time.delayedCall(this._config.atkCooldown, () => (this._canAttack = true));
     });
   }
@@ -199,6 +225,16 @@ export class Ennemy extends Sprite {
     }
   }
 
+  private setbodySize(params: { isAttacking: boolean }): void {
+    if (params.isAttacking) {
+      this.body.setSize(this._defaultWidth, this.body.height, true);
+      // this.setOrigin(0.5);
+    } else {
+      const hitboxHeight = this.height * 0.8;
+      this.body.setSize(this._defaultWidth, hitboxHeight);
+    }
+  }
+
   private createAnimations(): void {
     this.anims.create({
       key: AnimationTag.ENNEMY_IDLE,
@@ -213,8 +249,8 @@ export class Ennemy extends Sprite {
     this.anims.create({
       key: AnimationTag.ENNEMY_MOVING,
       frames: this.anims.generateFrameNumbers(this._config.sprite, {
-        start: 5,
-        end: 8,
+        start: 4,
+        end: 7,
       }),
       frameRate: 10,
       repeat: -1,
@@ -223,8 +259,8 @@ export class Ennemy extends Sprite {
     this.anims.create({
       key: AnimationTag.ENNEMY_HURT,
       frames: this.anims.generateFrameNumbers(this._config.sprite, {
-        start: 10,
-        end: 11,
+        start: 8,
+        end: 9,
       }),
       frameRate: 20,
       repeat: 3,
@@ -233,25 +269,27 @@ export class Ennemy extends Sprite {
     this.anims.create({
       key: AnimationTag.ENNEMY_DEATH,
       frames: this.anims.generateFrameNumbers(this._config.sprite, {
-        start: 12,
-        end: 13,
+        start: 10,
+        end: 11,
       }),
       frameRate: 20,
       repeat: 3,
     });
 
+    const attackSprite = this._config.attackSprite || this._config.sprite;
+
     this.anims.create({
       key: AnimationTag.ENNEMY_ATTACK,
-      frames: this.anims.generateFrameNumbers(this._config.sprite, {
-        start: 15,
-        end: 19,
+      frames: this.anims.generateFrameNumbers(attackSprite, {
+        start: 0,
+        end: 4,
       }),
       frameRate: 10,
     });
 
-    this._atkHitbox.anims.create({
+    this.anims.create({
       key: AnimationTag.ENNEMY_ATTACK_HITBOX,
-      frames: this.anims.generateFrameNumbers(SpritesheetTag.PIXIE_HITBOX, {
+      frames: this.anims.generateFrameNumbers(attackSprite, {
         start: 0,
         end: 4,
       }),

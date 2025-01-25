@@ -120,10 +120,10 @@ export class AssetsConfig {
       },
       {
         tag: EnnemyTag.PIXIE,
-        url: "spritesheets/ennemies/pixie-spritesheet.webp",
+        url: "spritesheets/ennemies/pixie-spritesheet-32x46.webp",
         config: {
           frameWidth: 32,
-          frameHeight: 32,
+          frameHeight: 46,
         },
       },
       {
@@ -140,6 +140,14 @@ export class AssetsConfig {
         config: {
           frameWidth: 36,
           frameHeight: 36,
+        },
+      },
+      {
+        tag: EnnemyTag.PIXIE_ATTACK,
+        url: "spritesheets/ennemies/pixie-attack-96x46.webp",
+        config: {
+          frameWidth: 96,
+          frameHeight: 46,
         },
       },
     ];

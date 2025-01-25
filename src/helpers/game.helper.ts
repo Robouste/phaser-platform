@@ -44,7 +44,7 @@ export class GameHelper {
     return Math.abs(value1 - value2) <= epsilon;
   }
 
-  public static animCompleteEvent(animation: AnimationTag): string {
-    return `animationcomplete-${animation}`;
+  public static getAnimationRepetition(duration: number, frameCount: number, frameRate: number): number {
+    return ((duration / 1000) * frameRate) / frameCount;
   }
 }

@@ -210,6 +210,7 @@ export class ForestLevel {
         speed: this.hero.speed - 80,
         patrolSpeed: 40,
         sprite: ennemyTag,
+        attackSprite: EnnemyTag.PIXIE_ATTACK,
         scene: this._scene,
         hp: 30,
         range: 40,
