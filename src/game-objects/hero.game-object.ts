@@ -3,7 +3,7 @@ import { depthsConfig } from "../configs";
 import { HeroState } from "../helpers";
 import { GameHelper } from "../helpers/game.helper";
 import { ArcadeBody, ArcadeSprite } from "../phaser-aliases";
-import { AnimationTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
+import { AnimationTag, HeroEventTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
 
 export class Hero extends ArcadeSprite {
   public declare body: ArcadeBody;
@@ -29,6 +29,9 @@ export class Hero extends ArcadeSprite {
   }
   public get hp(): number {
     return this._hp;
+  }
+  public get maximumHp(): number {
+    return this._maximumHp;
   }
 
   private _invincibilityWindow = 1000;
@@ -134,7 +137,8 @@ export class Hero extends ArcadeSprite {
     });
 
     this._hp -= damage;
-    console.log("aie");
+
+    this.scene.events.emit(HeroEventTag.HURT);
 
     if (this._hp <= 0) {
       this.scene.sound.play(SfxTag.HERO_DIE);

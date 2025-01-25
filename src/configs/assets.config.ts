@@ -44,6 +44,18 @@ export class AssetsConfig {
         tag: ImageTag.PROJECTILE_ARROW,
         url: "sprites/projectiles/arrow.webp",
       },
+      {
+        tag: ImageTag.HEART,
+        url: "sprites/ui/heart.webp",
+      },
+      {
+        tag: ImageTag.HEART_BORDER,
+        url: "sprites/ui/heart-border.webp",
+      },
+      {
+        tag: ImageTag.HEART_BACKGROUND,
+        url: "sprites/ui/heart-background.webp",
+      },
     ];
   }
 
@@ -120,6 +132,14 @@ export class AssetsConfig {
         config: {
           frameWidth: 32,
           frameHeight: 32,
+        },
+      },
+      {
+        tag: SpritesheetTag.HEART,
+        url: "spritesheets/heart-spritesheet-36.webp",
+        config: {
+          frameWidth: 36,
+          frameHeight: 36,
         },
       },
     ];

@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import { AssetsConfig } from "../configs";
 import { Hero } from "../game-objects";
 import { ForestLevel } from "../levels";
-import { SceneTag } from "../tags";
+import { AnimationTag, HeroEventTag, ImageTag, SceneTag, SpritesheetTag } from "../tags";
 
 export class Game extends Scene {
   private _hero: Hero | undefined;
@@ -46,7 +46,11 @@ export class Game extends Scene {
 
     this._hero = new Hero(this);
     this._hero.on("destroy", () => this.scene.start(SceneTag.GAME_OVER));
+
+    this.events.on(HeroEventTag.HURT, () => {});
     this._currentLevel = new ForestLevel(this._hero, this);
+
+    this.createHeartsAnimation();
   }
 
   /**
@@ -72,6 +76,7 @@ export class Game extends Scene {
 
     this._hero?.update(time, delta);
     this._currentLevel?.update();
+    this.updateHearts();
   }
 
   private createDebug(): void {
@@ -92,5 +97,36 @@ export class Game extends Scene {
     if (!xIsLeft && !yIsTop) {
       this._hero.heroState.set({ action: "MOVING-RIGHT" });
     }
+  }
+
+  private updateHearts(): void {
+    if (!this._hero) {
+      return;
+    }
+
+    const { hp, maximumHp } = this._hero;
+
+    this.drawHearts(maximumHp, ImageTag.HEART_BACKGROUND);
+    this.drawHearts(maximumHp, ImageTag.HEART_BORDER);
+    this.drawHearts(hp, ImageTag.HEART);
+  }
+
+  private drawHearts(loop: number, imageTag: ImageTag): void {
+    for (let i = 0; i < loop; i++) {
+      const heart = this.add.sprite(16 + 18 * i, 16, imageTag);
+      heart.setOrigin(0, 0);
+      heart.setScrollFactor(0);
+    }
+  }
+
+  private createHeartsAnimation(): void {
+    this.anims.create({
+      key: AnimationTag.HEART_CHANGE,
+      frames: this.anims.generateFrameNumbers(SpritesheetTag.HEART, {
+        start: 0,
+        end: 4,
+      }),
+      frameRate: 8,
+    });
   }
 }
