@@ -1,5 +1,6 @@
-import { Sprite } from "../phaser-aliases";
-import { AnimationTag } from "../tags";
+import { Sprite, Tween } from "@phaser-aliases";
+import { AnimationTag } from "@tags";
+import { Scene } from "phaser";
 
 export class GameHelper {
   public static get isDev(): boolean {
@@ -46,5 +47,23 @@ export class GameHelper {
 
   public static getAnimationRepetition(duration: number, frameCount: number, frameRate: number): number {
     return ((duration / 1000) * frameRate) / frameCount;
+  }
+
+  // TODO: make it works
+  public static getEdgeToEdgeDistance(sprite1: Sprite, sprite2: Sprite): number {
+    const distance = Phaser.Math.Distance.BetweenPoints(sprite1.getBounds(), sprite2.getBounds());
+
+    return distance;
+  }
+
+  public static flashSprite(scene: Scene, sprite: Sprite): Tween {
+    return scene.tweens.add({
+      targets: sprite,
+      alpha: { from: 1, to: 0 },
+      ease: "Linear",
+      duration: 100,
+      repeat: -1,
+      yoyo: true,
+    });
   }
 }

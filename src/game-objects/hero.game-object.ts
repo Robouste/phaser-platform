@@ -99,6 +99,7 @@ export class Hero extends ArcadeSprite {
     if (this._hp <= 0) {
       return;
     }
+
     this.handleMovements(time);
     this.handleProjectiles();
   }

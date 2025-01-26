@@ -1,8 +1,7 @@
-import { Scene } from "phaser";
-import { depthsConfig } from "../configs";
-import { Ennemy, EnnemyConfig, Hero } from "../game-objects";
-import { GameHelper, isEnumValue } from "../helpers";
-import { Sprite, Tilemap } from "../phaser-aliases";
+import { depthsConfig } from "@configs";
+import { Ennemy, EnnemyConfig, Hero } from "@game-objects";
+import { GameHelper, isEnumValue } from "@helpers";
+import { Sprite, Tilemap } from "@phaser-aliases";
 import {
   BackgroundSound,
   EnnemyTag,
@@ -13,7 +12,9 @@ import {
   TilemapObjectsType,
   TilemapTag,
   TilesetTag,
-} from "../tags";
+} from "@tags";
+import { Scene } from "phaser";
+import { ForestAnimations } from "./forest.animations";
 
 type ValueOf<T> = T[keyof T];
 
@@ -82,11 +83,15 @@ export class ForestLevel {
     { name: "plant3", tag: TilesetTag.FOREST_PLANT_3_ANIMATION },
   ];
 
+  private _animationsManager: ForestAnimations;
+
   constructor(public hero: Hero, private _scene: Scene) {
     this._scene.sound.play(BackgroundSound.RIVER_FLOWING_INSECTS, {
       loop: true,
       volume: GameHelper.audioIsEnabled ? 1 : 0,
     });
+
+    this._animationsManager = new ForestAnimations(_scene);
 
     this._mainCam.setBounds(0, 0, this._sceneWidth, this._scene.scale.height);
 
@@ -190,7 +195,7 @@ export class ForestLevel {
 
     const patrols = positions.filter((position) => position.type === "ennemy_patrol");
 
-    patrols.forEach((patrol) => {
+    patrols.forEach((patrol, index) => {
       if (!patrol.x || !patrol.y || !patrol.polyline || patrol.polyline.length < 2) {
         throw Error("Invalid patrol object");
       }
@@ -213,10 +218,13 @@ export class ForestLevel {
         attackSprite: EnnemyTag.PIXIE_ATTACK,
         scene: this._scene,
         hp: 30,
-        range: 40,
+        range: 30,
         atkCooldown: 1000,
         damage: 1,
+        id: index,
       };
+
+      this._animationsManager.register(ennemyConfig.sprite, ennemyConfig.attackSprite);
 
       const ennemyObject = new Ennemy(ennemyConfig, this.hero);
 

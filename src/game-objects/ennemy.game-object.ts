@@ -14,11 +14,12 @@ export interface EnnemyConfig {
   speed: number;
   patrolSpeed: number;
   sprite: EnnemyTag;
-  attackSprite?: EnnemyTag;
+  attackSprite: EnnemyTag;
   hp: number;
   range: number;
   atkCooldown: number;
   damage: number;
+  id: number;
 }
 
 export class Ennemy extends ArcadeSprite {
@@ -29,7 +30,7 @@ export class Ennemy extends ArcadeSprite {
   private _patrolDirection = 1;
   private _patrolTween: Phaser.Tweens.Tween | null = null;
   private _config: EnnemyConfig;
-  private _attacking = false;
+  private _isAttacking = false;
   private _canAttack = true;
   private _defaultWidth: number;
   private _attackHitbox: Phaser.GameObjects.Rectangle & {
@@ -61,7 +62,7 @@ export class Ennemy extends ArcadeSprite {
       isAttacking: false,
     });
 
-    const attackHitbox = this.scene.add.rectangle(0, 0, 32, 32, 0xffffff, 0);
+    const attackHitbox = this.scene.add.rectangle(0, 0, this._config.range, 32, 0xffffff, 0);
 
     this._attackHitbox = this._physics.add.existing(attackHitbox) as Phaser.GameObjects.Rectangle & {
       body: ArcadeBody;
@@ -70,8 +71,6 @@ export class Ennemy extends ArcadeSprite {
     this._attackHitbox.body.setAllowGravity(false);
     this._attackHitbox.body.setEnable(false);
     this._physics.world.remove(this._attackHitbox.body);
-
-    this._physics.add.collider(this._attackHitbox, this._player);
 
     this._physics.add.overlap(
       this._attackHitbox,
@@ -83,18 +82,17 @@ export class Ennemy extends ArcadeSprite {
       this
     );
 
-    this.createAnimations();
     this.startPatrol();
   }
 
   public update(): void {
-    if (this._config.hp <= 0) {
+    if (this._config.hp <= 0 || this._isAttacking) {
       return;
     }
 
     this.updateFlipX();
 
-    const distanceToPlayer = Phaser.Math.Distance.Between(this.x, this.y, this._player.x, this._player.y);
+    const distanceToPlayer = GameHelper.getEdgeToEdgeDistance(this, this._player);
 
     if (distanceToPlayer <= this._config.range) {
       this.attack();
@@ -148,7 +146,7 @@ export class Ennemy extends ArcadeSprite {
   }
 
   private attack(): void {
-    if (this._attacking || !this._canAttack) {
+    if (this._isAttacking || !this._canAttack) {
       return;
     }
 
@@ -163,7 +161,7 @@ export class Ennemy extends ArcadeSprite {
     this._attackHitbox.body.setEnable(true);
     this._physics.world.add(this._attackHitbox.body);
 
-    this._attacking = true;
+    this._isAttacking = true;
     this._canAttack = false;
     this.body.setVelocityX(0);
     GameHelper.animate(this, AnimationTag.ENNEMY_ATTACK);
@@ -177,7 +175,7 @@ export class Ennemy extends ArcadeSprite {
       this._physics.world.remove(this._attackHitbox.body);
 
       this.anims.play(AnimationTag.ENNEMY_IDLE);
-      this._attacking = false;
+      this._isAttacking = false;
       this.setbodySize({
         isAttacking: false,
       });
@@ -233,67 +231,5 @@ export class Ennemy extends ArcadeSprite {
       const hitboxHeight = this.height * 0.8;
       this.body.setSize(this._defaultWidth, hitboxHeight);
     }
-  }
-
-  private createAnimations(): void {
-    this.anims.create({
-      key: AnimationTag.ENNEMY_IDLE,
-      frames: this.anims.generateFrameNumbers(this._config.sprite, {
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: AnimationTag.ENNEMY_MOVING,
-      frames: this.anims.generateFrameNumbers(this._config.sprite, {
-        start: 4,
-        end: 7,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: AnimationTag.ENNEMY_HURT,
-      frames: this.anims.generateFrameNumbers(this._config.sprite, {
-        start: 8,
-        end: 9,
-      }),
-      frameRate: 20,
-      repeat: 3,
-    });
-
-    this.anims.create({
-      key: AnimationTag.ENNEMY_DEATH,
-      frames: this.anims.generateFrameNumbers(this._config.sprite, {
-        start: 10,
-        end: 11,
-      }),
-      frameRate: 20,
-      repeat: 3,
-    });
-
-    const attackSprite = this._config.attackSprite || this._config.sprite;
-
-    this.anims.create({
-      key: AnimationTag.ENNEMY_ATTACK,
-      frames: this.anims.generateFrameNumbers(attackSprite, {
-        start: 0,
-        end: 4,
-      }),
-      frameRate: 10,
-    });
-
-    this.anims.create({
-      key: AnimationTag.ENNEMY_ATTACK_HITBOX,
-      frames: this.anims.generateFrameNumbers(attackSprite, {
-        start: 0,
-        end: 4,
-      }),
-      frameRate: 10,
-    });
   }
 }

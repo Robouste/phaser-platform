@@ -16,7 +16,15 @@
     "strictPropertyInitialization": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@game-types": ["./src/types/index.ts"],
+      "@tags": ["./src/tags/index.ts"],
+      "@configs": ["./src/configs/index.ts"],
+      "@game-objects": ["./src/game-objects/index.ts"],
+      "@helpers": ["./src/helpers/index.ts"],
+      "@phaser-aliases": ["./src/phaser-aliases/index.ts"]
+    }
   },
   "include": ["src"]
 }

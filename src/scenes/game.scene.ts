@@ -1,3 +1,5 @@
+import { GameHelper } from "@helpers";
+import { ANIMATION, Sprite } from "@phaser-aliases";
 import { Scene } from "phaser";
 import { AssetsConfig } from "../configs";
 import { Hero } from "../game-objects";
@@ -9,6 +11,10 @@ export class Game extends Scene {
   private _keyboard: Phaser.Input.Keyboard.KeyboardPlugin | undefined;
   private _toggleDebugKey: Phaser.Input.Keyboard.Key | undefined;
   private _currentLevel: ForestLevel | undefined;
+  private _hearts: Sprite[] = [];
+  private _heartsBackgrounds: Sprite[] = [];
+  private _heartsBorder: Sprite[] = [];
+  private _heartSize = 0;
 
   constructor() {
     super(SceneTag.GAME);
@@ -47,9 +53,25 @@ export class Game extends Scene {
     this._hero = new Hero(this);
     this._hero.on("destroy", () => this.scene.start(SceneTag.GAME_OVER));
 
-    this.events.on(HeroEventTag.HURT, () => {});
+    this.events.on(HeroEventTag.HURT, () => {
+      if (!this._hero) {
+        return;
+      }
+
+      const affectedHeart = this._hearts[this._hero.hp];
+      affectedHeart.play(AnimationTag.HEART_CHANGE);
+      affectedHeart.setDisplaySize(this._heartSize, this._heartSize);
+      const tweenFash = GameHelper.flashSprite(this, affectedHeart);
+      affectedHeart.once(ANIMATION.COMPLETE, () => {
+        affectedHeart.setAlpha(1);
+        tweenFash.stop();
+        tweenFash.destroy();
+      });
+    });
+
     this._currentLevel = new ForestLevel(this._hero, this);
 
+    this.createHearts();
     this.createHeartsAnimation();
   }
 
@@ -76,7 +98,6 @@ export class Game extends Scene {
 
     this._hero?.update(time, delta);
     this._currentLevel?.update();
-    this.updateHearts();
   }
 
   private createDebug(): void {
@@ -99,24 +120,24 @@ export class Game extends Scene {
     }
   }
 
-  private updateHearts(): void {
-    if (!this._hero) {
-      return;
+  private createHearts(): void {
+    const maxHearts = this._hero?.maximumHp ?? 0;
+
+    for (let i = 0; i < maxHearts; i++) {
+      this._heartsBackgrounds.push(this.createSingleHeart(ImageTag.HEART_BACKGROUND, i));
+      this._heartsBorder.push(this.createSingleHeart(ImageTag.HEART_BORDER, i));
+      this._hearts.push(this.createSingleHeart(ImageTag.HEART, i));
     }
-
-    const { hp, maximumHp } = this._hero;
-
-    this.drawHearts(maximumHp, ImageTag.HEART_BACKGROUND);
-    this.drawHearts(maximumHp, ImageTag.HEART_BORDER);
-    this.drawHearts(hp, ImageTag.HEART);
   }
 
-  private drawHearts(loop: number, imageTag: ImageTag): void {
-    for (let i = 0; i < loop; i++) {
-      const heart = this.add.sprite(16 + 18 * i, 16, imageTag);
-      heart.setOrigin(0, 0);
-      heart.setScrollFactor(0);
-    }
+  private createSingleHeart(sprite: string, index: number): Sprite {
+    const heart = this.add.sprite(16 + 18 * index, 16, sprite);
+    heart.setOrigin(0, 0);
+    heart.setScrollFactor(0);
+
+    this._heartSize = heart.width;
+
+    return heart;
   }
 
   private createHeartsAnimation(): void {
@@ -126,7 +147,7 @@ export class Game extends Scene {
         start: 0,
         end: 4,
       }),
-      frameRate: 8,
+      frameRate: 10,
     });
   }
 }

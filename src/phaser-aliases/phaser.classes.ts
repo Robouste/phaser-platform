@@ -5,3 +5,4 @@ export class Tileset extends Phaser.Tilemaps.Tileset {}
 export class Tilemap extends Phaser.Tilemaps.Tilemap {}
 export class GameObject extends Phaser.GameObjects.GameObject {}
 export class Sprite extends Phaser.GameObjects.Sprite {}
+export class Tween extends Phaser.Tweens.Tween {}
