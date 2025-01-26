@@ -1,4 +1,4 @@
-import { Sprite, Tween } from "@phaser-aliases";
+import { Sprite, SpriteWithDynamicBody, Tween } from "@phaser-aliases";
 import { AnimationTag } from "@tags";
 import { Scene } from "phaser";
 
@@ -65,5 +65,72 @@ export class GameHelper {
       repeat: -1,
       yoyo: true,
     });
+  }
+
+  public static isObstacleAhead(
+    object: SpriteWithDynamicBody,
+    scene: Scene,
+    params?: {
+      debug: boolean;
+      debugColor?: number;
+    }
+  ): boolean {
+    // body origin is top left. we check the center of the sprite
+    const posY = object.body.y + object.body.height / 2;
+    return GameHelper.isColliderAtY(object, scene, posY, params);
+  }
+
+  public static isLedgeAhead(
+    object: SpriteWithDynamicBody,
+    scene: Scene,
+    params?: {
+      debug: boolean;
+      debugColor?: number;
+    }
+  ): boolean {
+    // body origin is top left. we check the bottom of the sprite + arbitrary offset of 10px
+    const posY = object.body.y + object.body.height + 10;
+    return !GameHelper.isColliderAtY(object, scene, posY, params);
+  }
+
+  private static isColliderAtY(
+    object: SpriteWithDynamicBody,
+    scene: Scene,
+    yPos: number,
+    params?: {
+      debug: boolean;
+      debugColor?: number;
+    }
+  ): boolean {
+    const direction = object.flipX ? "LEFT" : "RIGHT";
+    const baseOffset = object.body.width / 2;
+    // body origin is top left, so we add the width of the sprite if looking right.
+    const offsetX = direction === "RIGHT" ? baseOffset + object.body.width : -baseOffset;
+    const checkX = object.body.x + offsetX;
+    const checkY = yPos;
+
+    // Create a test groundCheckRect at the given position
+    const groundCheckRect = new Phaser.Geom.Rectangle(checkX, checkY, 2, 2);
+    const { x, y, width, height } = groundCheckRect;
+    // Check if any physical object is overlapping with our test groundCheckRect
+    const overlappingObjects = scene.physics.overlapRect(x, y, width, height, true, true);
+
+    if (params?.debug) {
+      const debugGraphics = scene.add.graphics();
+      debugGraphics.clear();
+      debugGraphics.setDepth(1000000);
+      debugGraphics.lineStyle(2, params.debugColor ?? 0xff0000);
+      debugGraphics.strokeRect(checkX, checkY, 2, 2);
+
+      scene.time.addEvent({
+        delay: 1000,
+        callback: () => debugGraphics.destroy(),
+        callbackScope: this,
+        loop: false,
+      });
+    }
+
+    // TODO: check for static objects only
+    return overlappingObjects.filter((obj) => obj instanceof Phaser.Physics.Arcade.StaticBody).length > 0;
   }
 }

@@ -110,9 +110,9 @@ export class ForestLevel {
     this.setCollisions();
   }
 
-  public update(): void {
+  public update(time: number, delta: number): void {
     this._ennemies.getChildren().forEach((ennemy) => {
-      ennemy.update();
+      ennemy.update(time, delta);
     });
   }
 
@@ -163,6 +163,8 @@ export class ForestLevel {
       .forEach((collider) => {
         collider.alpha = 0;
       });
+
+    this._scene.physics.world.enable(this._colliderGroup);
   }
 
   private addHero(): void {
@@ -196,11 +198,11 @@ export class ForestLevel {
     const patrols = positions.filter((position) => position.type === "ennemy_patrol");
 
     patrols.forEach((patrol, index) => {
-      if (!patrol.x || !patrol.y || !patrol.polyline || patrol.polyline.length < 2) {
+      if (!patrol.x || !patrol.y) {
         throw Error("Invalid patrol object");
       }
 
-      const { x, y, polyline } = patrol;
+      const { x, y } = patrol;
       const ennemyTag = patrol.name;
 
       if (!isEnumValue(EnnemyTag, ennemyTag)) {
@@ -211,7 +213,6 @@ export class ForestLevel {
         x,
         y,
         chaseDistance: 200,
-        patrolDistance: polyline[1].x,
         speed: this.hero.speed - 80,
         patrolSpeed: 40,
         sprite: ennemyTag,
@@ -251,6 +252,16 @@ export class ForestLevel {
         throw Error("ennemy is not a sprite");
       }
 
+      if (!("body" in projectile)) {
+        throw Error("projectile has no body");
+      }
+
+      // TODO: compute strength based on ennemy mass
+      const knockbackStrength = 50;
+      const direction = projectile.body.velocity.x > 0 ? 1 : -1;
+
+      ennemy.body.setVelocityX(knockbackStrength * direction);
+      ennemy.knockback(knockbackStrength, direction);
       ennemy.hurt(this.hero.damage);
       projectile.destroy();
     });

@@ -9,7 +9,6 @@ export interface EnnemyConfig {
   scene: Scene;
   x: number;
   y: number;
-  patrolDistance: number;
   chaseDistance: number;
   speed: number;
   patrolSpeed: number;
@@ -25,10 +24,11 @@ export interface EnnemyConfig {
 export class Ennemy extends ArcadeSprite {
   public declare body: ArcadeBody;
 
+  public get speed(): number {
+    return this._config.speed;
+  }
+
   private _player: Hero;
-  private _startingX: number;
-  private _patrolDirection = 1;
-  private _patrolTween: Phaser.Tweens.Tween | null = null;
   private _config: EnnemyConfig;
   private _isAttacking = false;
   private _canAttack = true;
@@ -37,16 +37,14 @@ export class Ennemy extends ArcadeSprite {
     body: ArcadeBody;
   };
 
-  private get _isPatrolling(): boolean {
-    return this._patrolTween !== null;
-  }
+  private _direction = 1;
+  private _isPatrolling = false;
   private get _physics(): Phaser.Physics.Arcade.ArcadePhysics {
     return this.scene.physics;
   }
 
   constructor(config: EnnemyConfig, player: Hero) {
     super(config.scene, config.x, config.y, config.sprite);
-    this._startingX = config.x;
     this._config = config;
 
     this._player = player;
@@ -82,10 +80,12 @@ export class Ennemy extends ArcadeSprite {
       this
     );
 
+    this._direction = Phaser.Math.Distance.Between(this.x, this.y, this._player.x, this._player.y) > 0 ? 1 : -1;
+
     this.startPatrol();
   }
 
-  public update(): void {
+  public update(_: number, __: number): void {
     if (this._config.hp <= 0 || this._isAttacking) {
       return;
     }
@@ -102,7 +102,11 @@ export class Ennemy extends ArcadeSprite {
       this.chasePlayer();
     } //
     else if (distanceToPlayer > this._config.chaseDistance && !this._isPatrolling) {
-      this.returnToStart();
+      this.startPatrol();
+    }
+
+    if (this._isPatrolling) {
+      this.updatePatrol();
     }
 
     GameHelper.animate(this, AnimationTag.ENNEMY_MOVING, {
@@ -126,23 +130,36 @@ export class Ennemy extends ArcadeSprite {
     }
   }
 
+  public knockback(strength: number, direction: number): void {
+    this.body.setVelocityX((strength / this.body.mass) * direction);
+
+    this.scene.time.delayedCall(400, () => {
+      // ennemy is dead
+      if (!this.body) {
+        return;
+      }
+      const speed = this._isPatrolling ? this._config.patrolSpeed : this._config.speed;
+      this.body.setVelocityX(speed * this._direction);
+    });
+  }
+
   private startPatrol(): void {
-    if (this._patrolTween !== null) {
-      return;
-    }
+    this._isPatrolling = true;
 
     GameHelper.animate(this, AnimationTag.ENNEMY_MOVING);
-    this._patrolDirection = Math.sign(this._config.patrolDistance);
 
-    this._patrolTween = this.scene.tweens.add({
-      targets: this,
-      x: this._startingX + this._config.patrolDistance,
-      duration: (Math.abs(this._config.patrolDistance) / this._config.patrolSpeed) * 1000,
-      yoyo: true,
-      repeat: -1,
-      onYoyo: () => (this._patrolDirection *= -1),
-      onRepeat: () => (this._patrolDirection *= -1),
-    });
+    this.body.setVelocityX(this._config.patrolSpeed * this._direction);
+  }
+
+  private stopPatrol(): void {
+    this._isPatrolling = false;
+  }
+
+  private updatePatrol(): void {
+    if (GameHelper.isObstacleAhead(this, this.scene) || GameHelper.isLedgeAhead(this, this.scene)) {
+      this._direction *= -1;
+      this.body.setVelocityX(this._config.patrolSpeed * this._direction);
+    }
   }
 
   private attack(): void {
@@ -151,9 +168,9 @@ export class Ennemy extends ArcadeSprite {
     }
 
     this.scene.sound.play(SfxTag.PIXIE_ATTACK);
-    const direction = this.flipX ? -1 : 1;
+
     const hitboxPosition = {
-      x: this.x + direction * this._attackHitbox.width,
+      x: this.x + this._direction * this._attackHitbox.width,
       y: this.y,
     };
 
@@ -183,39 +200,22 @@ export class Ennemy extends ArcadeSprite {
     });
   }
 
-  private stopPatrol(): void {
-    if (this._patrolTween !== null) {
-      this._patrolTween.stop();
-      this._patrolTween = null;
-    }
-  }
-
   private chasePlayer(): void {
-    const direction = Math.sign(this._player.x - this.x);
-    this.body.setVelocityX(direction * this._config.speed);
-  }
-
-  private returnToStart(): void {
-    if (GameHelper.isCloseEnough(this.x, this._startingX)) {
-      this.body.setVelocityX(0);
-      this.startPatrol();
-    } else {
-      const direction = Math.sign(this._startingX - this.x);
-      this.body.setVelocityX(direction * this._config.patrolSpeed);
-    }
+    this._direction = Math.sign(this._player.x - this.x);
+    this.body.setVelocityX(this._direction * this._config.speed);
   }
 
   private updateFlipX(): void {
     // Patrol is using a tween, which updates X position instead of velocity
     if (this._isPatrolling) {
-      this.setFlipX(this._patrolDirection < 0);
+      this.setFlipX(this._direction < 0);
     } //
     else {
       const distanceToPlayer = Phaser.Math.Distance.Between(this.x, this.y, this._player.x, this._player.y);
 
       if (distanceToPlayer <= this._config.chaseDistance) {
-        const playerDirection = Math.sign(this._player.x - this.x);
-        this.setFlipX(playerDirection < 0);
+        this._direction = Math.sign(this._player.x - this.x);
+        this.setFlipX(this._direction < 0);
       } //
       else {
         this.setFlipX(this.body.velocity.x < 0);

@@ -451,63 +451,39 @@
                 }, 
                 {
                  "height":0,
-                 "id":18,
+                 "id":24,
                  "name":"pixie_ennemy_tag",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":-258.666666666667,
-                         "y":1.33333333333331
-                        }],
+                 "point":true,
                  "rotation":0,
                  "type":"ennemy_patrol",
                  "visible":true,
                  "width":0,
-                 "x":691,
-                 "y":391.833333333333
+                 "x":737,
+                 "y":375.5
                 }, 
                 {
                  "height":0,
-                 "id":20,
+                 "id":25,
                  "name":"pixie_ennemy_tag",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":-131.333666666667,
-                         "y":1.33333
-                        }],
+                 "point":true,
                  "rotation":0,
                  "type":"ennemy_patrol",
                  "visible":true,
                  "width":0,
-                 "x":982.833333333333,
-                 "y":194.666666666667
+                 "x":912,
+                 "y":187
                 }, 
                 {
                  "height":0,
-                 "id":23,
+                 "id":26,
                  "name":"pixie_ennemy_tag",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":-131.334,
-                         "y":1.33333
-                        }],
+                 "point":true,
                  "rotation":0,
                  "type":"ennemy_patrol",
                  "visible":true,
                  "width":0,
-                 "x":1253,
-                 "y":387.5
+                 "x":1186.5,
+                 "y":373.5
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -516,7 +492,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":24,
+ "nextobjectid":27,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.0",

@@ -35,7 +35,7 @@ export class Game extends Scene {
     this.createDebug();
 
     this.input.on(Phaser.Input.Events.POINTER_DOWN, (pointer: Phaser.Input.Pointer) => {
-      if (!this._hero) {
+      if (!this._hero || GameHelper.isDev) {
         return;
       }
 
@@ -92,12 +92,12 @@ export class Game extends Scene {
 
     const pointer = this.input.activePointer;
 
-    if (pointer.isDown) {
+    if (pointer.isDown && !GameHelper.isDev) {
       this.handlePointer(pointer);
     }
 
     this._hero?.update(time, delta);
-    this._currentLevel?.update();
+    this._currentLevel?.update(time, delta);
   }
 
   private createDebug(): void {
