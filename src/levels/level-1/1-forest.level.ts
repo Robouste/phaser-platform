@@ -1,5 +1,6 @@
 import { depthsConfig } from "@configs";
 import { Ennemy, EnnemyConfig, Hero } from "@game-objects";
+import { CustomScene } from "@game-types";
 import { GameHelper, isEnumValue } from "@helpers";
 import { Sprite, Tilemap } from "@phaser-aliases";
 import {
@@ -13,7 +14,6 @@ import {
   TilemapTag,
   TilesetTag,
 } from "@tags";
-import { Scene } from "phaser";
 import { ForestAnimations } from "./forest.animations";
 
 type ValueOf<T> = T[keyof T];
@@ -85,7 +85,7 @@ export class ForestLevel {
 
   private _animationsManager: ForestAnimations;
 
-  constructor(public hero: Hero, private _scene: Scene) {
+  constructor(public hero: Hero, private _scene: CustomScene) {
     this._scene.sound.play(BackgroundSound.RIVER_FLOWING_INSECTS, {
       loop: true,
       volume: GameHelper.audioIsEnabled ? 1 : 0,
@@ -147,7 +147,7 @@ export class ForestLevel {
         layer?.setDepth(this._layersConfig[tag].depth);
       });
 
-    this._scene.sys.animatedTiles.init(this._map);
+    this._scene.animatedTiles.init(this._map);
   }
 
   private addColliders(): void {

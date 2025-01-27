@@ -1,12 +1,11 @@
+import { CustomScene } from "@game-types";
 import { GameHelper } from "@helpers";
 import { ANIMATION, Sprite } from "@phaser-aliases";
-import { Scene } from "phaser";
-import { AssetsConfig } from "../configs";
 import { Hero } from "../game-objects";
 import { ForestLevel } from "../levels";
 import { AnimationTag, HeroEventTag, ImageTag, SceneTag, SpritesheetTag } from "../tags";
 
-export class Game extends Scene {
+export class Game extends CustomScene {
   private _hero: Hero | undefined;
   private _keyboard: Phaser.Input.Keyboard.KeyboardPlugin | undefined;
   private _toggleDebugKey: Phaser.Input.Keyboard.Key | undefined;
@@ -18,12 +17,6 @@ export class Game extends Scene {
 
   constructor() {
     super(SceneTag.GAME);
-  }
-
-  public preload(): void {
-    AssetsConfig.plugins.forEach((config) =>
-      this.load.scenePlugin(config.tag, config.url, config.systemKey, config.sceneKey)
-    );
   }
 
   public create(): void {

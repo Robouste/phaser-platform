@@ -59,9 +59,7 @@ export class Hero extends ArcadeSprite {
   constructor(scene: Scene) {
     super(scene, 0, 0, SpritesheetTag.HERO);
 
-    this.setScale(0.5).setDepth(depthsConfig.hero);
-
-    // this.setCollideWorldBounds(true);
+    this.setScale(0.6).setDepth(depthsConfig.hero);
 
     if (!this.scene.input.keyboard) {
       throw Error("Keyboard plugin is not available");
@@ -82,6 +80,7 @@ export class Hero extends ArcadeSprite {
   public spawn(x: number, y: number): void {
     this.scene.add.existing(this);
     this.scene.physics.add.existing(this);
+    this.scene.physics.world.enable(this);
 
     this.x = x;
     this.y = y;

@@ -1,4 +1,4 @@
-import { Scene } from "phaser";
+import { CustomScene } from "@game-types";
 import { depthsConfig } from "../configs";
 import { GameHelper } from "../helpers";
 import { ANIMATION, ArcadeBody, ArcadeSprite } from "../phaser-aliases";
@@ -6,7 +6,7 @@ import { AnimationTag, EnnemyTag, SfxTag } from "../tags";
 import { Hero } from "./hero.game-object";
 
 export interface EnnemyConfig {
-  scene: Scene;
+  scene: CustomScene;
   x: number;
   y: number;
   chaseDistance: number;
@@ -28,6 +28,16 @@ export class Ennemy extends ArcadeSprite {
     return this._config.speed;
   }
 
+  public get direction(): number {
+    return this._direction;
+  }
+  protected debugGraphics: Phaser.GameObjects.Graphics;
+
+  protected set direction(value: number) {
+    this._direction = value;
+    this.setFlipX(value < 0);
+  }
+
   private _player: Hero;
   private _config: EnnemyConfig;
   private _isAttacking = false;
@@ -43,8 +53,13 @@ export class Ennemy extends ArcadeSprite {
     return this.scene.physics;
   }
 
+  private _raycaster: Raycaster;
+  private _ray: Raycaster.Ray;
+
   constructor(config: EnnemyConfig, player: Hero) {
     super(config.scene, config.x, config.y, config.sprite);
+    this.debugGraphics = this.scene.add.graphics();
+
     this._config = config;
 
     this._player = player;
@@ -80,9 +95,20 @@ export class Ennemy extends ArcadeSprite {
       this
     );
 
-    this._direction = Phaser.Math.Distance.Between(this.x, this.y, this._player.x, this._player.y) > 0 ? 1 : -1;
+    this.direction = Phaser.Math.Distance.Between(this.x, this.y, this._player.x, this._player.y) > 0 ? 1 : -1;
 
     this.startPatrol();
+    const plugin: PhaserRaycaster = this._config.scene.raycasterPlugin;
+
+    this._raycaster = plugin.createRaycaster({
+      debug: false,
+    });
+    this.scene.physics.world.staticBodies.entries.forEach((body) => this._raycaster.mapGameObjects(body.gameObject));
+    this._raycaster.mapGameObjects(this._player, true);
+
+    this._ray = this._raycaster.createRay();
+    this._ray.setRayRange(this._config.chaseDistance);
+    // this._ray.setRayRange(1000);
   }
 
   public update(_: number, __: number): void {
@@ -90,18 +116,17 @@ export class Ennemy extends ArcadeSprite {
       return;
     }
 
-    this.updateFlipX();
-
     const distanceToPlayer = GameHelper.getEdgeToEdgeDistance(this, this._player);
 
     if (distanceToPlayer <= this._config.range) {
+      this.stopPatrol();
       this.attack();
     } //
-    else if (distanceToPlayer <= this._config.chaseDistance) {
+    else if (this.heroIsInSight()) {
       this.stopPatrol();
       this.chasePlayer();
     } //
-    else if (distanceToPlayer > this._config.chaseDistance && !this._isPatrolling) {
+    else if (!this._isPatrolling) {
       this.startPatrol();
     }
 
@@ -139,7 +164,7 @@ export class Ennemy extends ArcadeSprite {
         return;
       }
       const speed = this._isPatrolling ? this._config.patrolSpeed : this._config.speed;
-      this.body.setVelocityX(speed * this._direction);
+      this.body.setVelocityX(speed * this.direction);
     });
   }
 
@@ -148,7 +173,7 @@ export class Ennemy extends ArcadeSprite {
 
     GameHelper.animate(this, AnimationTag.ENNEMY_MOVING);
 
-    this.body.setVelocityX(this._config.patrolSpeed * this._direction);
+    this.body.setVelocityX(this._config.patrolSpeed * this.direction);
   }
 
   private stopPatrol(): void {
@@ -157,8 +182,8 @@ export class Ennemy extends ArcadeSprite {
 
   private updatePatrol(): void {
     if (GameHelper.isObstacleAhead(this, this.scene) || GameHelper.isLedgeAhead(this, this.scene)) {
-      this._direction *= -1;
-      this.body.setVelocityX(this._config.patrolSpeed * this._direction);
+      this.direction *= -1;
+      this.body.setVelocityX(this._config.patrolSpeed * this.direction);
     }
   }
 
@@ -170,7 +195,7 @@ export class Ennemy extends ArcadeSprite {
     this.scene.sound.play(SfxTag.PIXIE_ATTACK);
 
     const hitboxPosition = {
-      x: this.x + this._direction * this._attackHitbox.width,
+      x: this.x + this.direction * this._attackHitbox.width,
       y: this.y,
     };
 
@@ -200,27 +225,22 @@ export class Ennemy extends ArcadeSprite {
     });
   }
 
-  private chasePlayer(): void {
-    this._direction = Math.sign(this._player.x - this.x);
-    this.body.setVelocityX(this._direction * this._config.speed);
+  private heroIsInSight(): boolean {
+    this._ray.setOrigin(this.x, this.y);
+    this._ray.setAngleDeg(this._direction === 1 ? 0 : 180);
+    this._ray.setConeDeg(this._isPatrolling ? 30 : 90);
+    const result = this._ray.castCone();
+
+    return result.some((line) => {
+      if ("object" in line) {
+        return line.object instanceof Hero;
+      }
+    });
   }
 
-  private updateFlipX(): void {
-    // Patrol is using a tween, which updates X position instead of velocity
-    if (this._isPatrolling) {
-      this.setFlipX(this._direction < 0);
-    } //
-    else {
-      const distanceToPlayer = Phaser.Math.Distance.Between(this.x, this.y, this._player.x, this._player.y);
-
-      if (distanceToPlayer <= this._config.chaseDistance) {
-        this._direction = Math.sign(this._player.x - this.x);
-        this.setFlipX(this._direction < 0);
-      } //
-      else {
-        this.setFlipX(this.body.velocity.x < 0);
-      }
-    }
+  private chasePlayer(): void {
+    this.direction = Math.sign(this._player.x - this.x);
+    this.body.setVelocityX(this.direction * this._config.speed);
   }
 
   private setbodySize(params: { isAttacking: boolean }): void {

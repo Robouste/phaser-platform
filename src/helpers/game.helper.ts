@@ -123,7 +123,7 @@ export class GameHelper {
       debugGraphics.strokeRect(checkX, checkY, 2, 2);
 
       scene.time.addEvent({
-        delay: 1000,
+        delay: 1,
         callback: () => debugGraphics.destroy(),
         callbackScope: this,
         loop: false,

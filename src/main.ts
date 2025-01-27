@@ -1,4 +1,7 @@
+import { PluginTag } from "@tags";
 import { Game, Types } from "phaser";
+import AnimatedTiles from "phaser-animated-tiles/dist/AnimatedTiles.js";
+import PhaserRaycaster from "phaser-raycaster";
 import { GameHelper } from "./helpers";
 import { Boot, GameOver, Game as MainGame, MainMenu, Preloader } from "./scenes";
 
@@ -23,6 +26,20 @@ const config: Types.Core.GameConfig = {
   },
   input: {
     keyboard: true,
+  },
+  plugins: {
+    scene: [
+      {
+        key: PluginTag.RAYCASTER,
+        plugin: PhaserRaycaster,
+        mapping: PluginTag.RAYCASTER,
+      },
+      {
+        key: PluginTag.ANIMATED_TILES,
+        plugin: AnimatedTiles,
+        mapping: PluginTag.ANIMATED_TILES,
+      },
+    ],
   },
   scene: [Boot, Preloader, MainMenu, MainGame, GameOver],
 };
