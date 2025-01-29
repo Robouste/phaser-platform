@@ -1,8 +1,8 @@
-import { CustomScene } from "@game-types";
 import { GameHelper } from "@helpers";
 import { ANIMATION, Sprite } from "@phaser-aliases";
 import { Hero } from "../game-objects";
 import { ForestLevel } from "../levels";
+import { CustomScene } from "../models";
 import { AnimationTag, HeroEventTag, ImageTag, SceneTag, SpritesheetTag } from "../tags";
 
 export class Game extends CustomScene {

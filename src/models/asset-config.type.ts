@@ -1,14 +1,5 @@
-import { ImageFrameConfig } from "../phaser-aliases";
-import {
-  BackgroundSound,
-  EnnemyTag,
-  ImageTag,
-  PluginTag,
-  SfxTag,
-  SpritesheetTag,
-  TilemapTag,
-  TilesetTag,
-} from "../tags";
+import { ImageFrameConfig } from "@phaser-aliases";
+import { BackgroundSound, EnnemyTag, ImageTag, PluginTag, SfxTag, SpritesheetTag, TilemapTag, TilesetTag } from "@tags";
 
 interface AssetConfig<Tag extends string> {
   tag: Tag;

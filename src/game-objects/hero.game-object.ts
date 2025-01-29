@@ -1,9 +1,8 @@
+import { depthsConfig } from "@configs";
+import { GameHelper, HeroState } from "@helpers";
+import { ANIMATION, ArcadeBody, ArcadeSprite } from "@phaser-aliases";
+import { AnimationTag, HeroEventTag, ImageTag, SfxTag, SpritesheetTag } from "@tags";
 import { Scene } from "phaser";
-import { depthsConfig } from "../configs";
-import { HeroState } from "../helpers";
-import { GameHelper } from "../helpers/game.helper";
-import { ANIMATION, ArcadeBody, ArcadeSprite } from "../phaser-aliases";
-import { AnimationTag, HeroEventTag, ImageTag, SfxTag, SpritesheetTag } from "../tags";
 
 export class Hero extends ArcadeSprite {
   public declare body: ArcadeBody;

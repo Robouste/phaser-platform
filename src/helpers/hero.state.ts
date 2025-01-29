@@ -1,7 +1,7 @@
+import { Hero } from "@game-objects";
+import { HeroStateParams } from "@models";
+import { AnimationTag } from "@tags";
 import { Observable, Subject } from "rxjs";
-import { Hero } from "../game-objects";
-import { AnimationTag } from "../tags";
-import { HeroStateParams } from "../types";
 import { GameHelper } from "./game.helper";
 
 export class HeroState {

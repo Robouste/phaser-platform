@@ -1,5 +1,5 @@
+import { SceneTag } from "@tags";
 import { Scene } from "phaser";
-import { SceneTag } from "../tags";
 
 export class Boot extends Scene {
   constructor() {

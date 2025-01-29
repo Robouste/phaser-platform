@@ -1,14 +1,3 @@
-import AnimatedTiles from "phaser-animated-tiles/dist/AnimatedTiles.js";
-import {
-  BackgroundSound,
-  EnnemyTag,
-  ImageTag,
-  PluginTag,
-  SfxTag,
-  SpritesheetTag,
-  TilemapTag,
-  TilesetTag,
-} from "../tags";
 import {
   BgsConfig,
   ImageConfig,
@@ -17,7 +6,9 @@ import {
   SpritesheetConfig,
   TileMapConfig,
   TilesetConfig,
-} from "../types";
+} from "@models";
+import { BackgroundSound, EnnemyTag, ImageTag, PluginTag, SfxTag, SpritesheetTag, TilemapTag, TilesetTag } from "@tags";
+import AnimatedTiles from "phaser-animated-tiles/dist/AnimatedTiles.js";
 
 type FuckYou = any;
 

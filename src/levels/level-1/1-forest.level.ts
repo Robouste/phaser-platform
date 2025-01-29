@@ -1,7 +1,7 @@
 import { depthsConfig } from "@configs";
-import { Ennemy, EnnemyConfig, Hero } from "@game-objects";
-import { CustomScene } from "@game-types";
+import { Ennemy, Hero } from "@game-objects";
 import { GameHelper, isEnumValue } from "@helpers";
+import { CustomScene, EnnemyConfig } from "@models";
 import { Sprite, Tilemap } from "@phaser-aliases";
 import {
   BackgroundSound,

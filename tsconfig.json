@@ -18,7 +18,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@game-types": ["./src/types/index.ts"],
+      "@models": ["./src/models/index.ts"],
       "@tags": ["./src/tags/index.ts"],
       "@configs": ["./src/configs/index.ts"],
       "@game-objects": ["./src/game-objects/index.ts"],

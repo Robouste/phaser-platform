@@ -1,25 +1,9 @@
-import { CustomScene } from "@game-types";
-import { depthsConfig } from "../configs";
-import { GameHelper } from "../helpers";
-import { ANIMATION, ArcadeBody, ArcadeSprite } from "../phaser-aliases";
-import { AnimationTag, EnnemyTag, SfxTag } from "../tags";
+import { depthsConfig } from "@configs";
+import { GameHelper } from "@helpers";
+import { EnnemyConfig } from "@models";
+import { ANIMATION, ArcadeBody, ArcadeSprite } from "@phaser-aliases";
+import { AnimationTag, SfxTag } from "@tags";
 import { Hero } from "./hero.game-object";
-
-export interface EnnemyConfig {
-  scene: CustomScene;
-  x: number;
-  y: number;
-  chaseDistance: number;
-  speed: number;
-  patrolSpeed: number;
-  sprite: EnnemyTag;
-  attackSprite: EnnemyTag;
-  hp: number;
-  range: number;
-  atkCooldown: number;
-  damage: number;
-  id: number;
-}
 
 export class Ennemy extends ArcadeSprite {
   public declare body: ArcadeBody;
@@ -58,6 +42,7 @@ export class Ennemy extends ArcadeSprite {
 
   constructor(config: EnnemyConfig, player: Hero) {
     super(config.scene, config.x, config.y, config.sprite);
+
     this.debugGraphics = this.scene.add.graphics();
 
     this._config = config;
@@ -101,7 +86,7 @@ export class Ennemy extends ArcadeSprite {
     const plugin: PhaserRaycaster = this._config.scene.raycasterPlugin;
 
     this._raycaster = plugin.createRaycaster({
-      debug: false,
+      debug: true,
     });
     this.scene.physics.world.staticBodies.entries.forEach((body) => this._raycaster.mapGameObjects(body.gameObject));
     this._raycaster.mapGameObjects(this._player, true);
@@ -109,6 +94,16 @@ export class Ennemy extends ArcadeSprite {
     this._ray = this._raycaster.createRay();
     this._ray.setRayRange(this._config.chaseDistance);
     // this._ray.setRayRange(1000);
+
+    // this.on("destroy", () => {
+    //   console.log("this.hp", this._config.hp);
+    //   this._raycaster.removeMappedObjects(
+    //     this.scene.physics.world.staticBodies.entries.forEach((body) => this._raycaster.mapGameObjects(body.gameObject))
+    //   );
+    //   this._raycaster.removeMappedObjects(this._player);
+    //   this._ray.destroy();
+    //   this._raycaster.destroy();
+    // });
   }
 
   public update(_: number, __: number): void {
