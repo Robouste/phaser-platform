@@ -111,7 +111,7 @@ export class AssetsConfig {
       },
       {
         tag: EnnemyTag.PIXIE,
-        url: "spritesheets/ennemies/pixie-spritesheet-32x46.webp",
+        url: "spritesheets/ennemies/pixie/pixie-spritesheet-32x46.webp",
         config: {
           frameWidth: 32,
           frameHeight: 46,
@@ -119,7 +119,7 @@ export class AssetsConfig {
       },
       {
         tag: SpritesheetTag.PIXIE_HITBOX,
-        url: "spritesheets/ennemies/pixie-hitbox-spritesheet.webp",
+        url: "spritesheets/ennemies/pixie/pixie-hitbox-spritesheet.webp",
         config: {
           frameWidth: 32,
           frameHeight: 32,
@@ -135,7 +135,7 @@ export class AssetsConfig {
       },
       {
         tag: EnnemyTag.PIXIE_ATTACK,
-        url: "spritesheets/ennemies/pixie-attack-96x46.webp",
+        url: "spritesheets/ennemies/pixie/pixie-attack-96x46.webp",
         config: {
           frameWidth: 96,
           frameHeight: 46,

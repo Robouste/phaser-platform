@@ -25,6 +25,7 @@ export class GameOver extends Scene {
       strokeThickness: 8,
       align: "center",
     });
+
     this.gameover_text.setOrigin(0.5);
 
     this.input.once("pointerdown", () => {
